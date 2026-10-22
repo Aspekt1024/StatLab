@@ -1,0 +1,38 @@
+# Tests: stage contract
+
+<!-- Layer 2: "What do I do?" Read when writing or reviewing tests. -->
+
+## Projects
+
+| Project                      | Purpose |
+|------------------------------| --- |
+| `StatLab.Core.Tests` (NUnit) | Correctness of formulas, pipeline and data structures |
+| `StatLab.Balance.Tests`      | Balance targets per ruleset (milestone 5, not yet created) |
+
+## Reads
+
+- `docs/reference/stat-pipeline.md` for expected pipeline behaviour.
+- The code under test.
+
+## Rules
+
+- Build fixtures in code (small, explicit `StatBlock`s and modifiers). Tests never read files from `data/`.
+- Expected values are hand-calculated and written in the test, with the arithmetic in a comment.
+- Compare floats with a tolerance, never `==`.
+- Any randomness uses a fixed seed.
+- One behaviour per test; name tests after the behaviour (`PercentAdd_modifiers_sum_before_multiplying`).
+
+## Milestone 1 cases
+
+- [ ] Base value with no modifiers returns the base
+- [ ] Flat modifiers add
+- [ ] Two PercentAdd modifiers sum before multiplying (+10%, +10% → ×1.2)
+- [ ] Two PercentMult modifiers compound (+10%, +10% → ×1.21)
+- [ ] Flat applies before percentages (base 10, +5 flat, +50% → 22.5)
+- [ ] Removing by source restores the original value
+- [ ] Removing a source with modifiers on several stats removes all of them
+- [ ] Caps and clamps hold (crit cap, health ≥ 0)
+- [ ] A Stamina modifier flows through to max health via the derived phase
+- [ ] A modifier on a derived stat (e.g. +1% crit) applies after conversion
+- [ ] Negative modifiers (debuffs) behave correctly
+- [ ] A stat with no modifiers and a zero base returns zero
