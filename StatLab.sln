@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatLab.Core", "StatLab.Core\StatLab.Core.csproj", "{52B5BD20-0376-4E71-BFD6-E21122DE4E54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatLab.Core", "src\StatLab.Core\StatLab.Core.csproj", "{52B5BD20-0376-4E71-BFD6-E21122DE4E54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatLab.Core.Tests", "tests\StatLab.Core.Tests\StatLab.Core.Tests.csproj", "{1F0761F1-7BF4-4E75-B1CC-7E6418B0225A}"
 EndProject

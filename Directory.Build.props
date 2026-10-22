@@ -1,0 +1,8 @@
+<Project>
+
+    <PropertyGroup>
+        <!-- Report .editorconfig style rules as build warnings, not just in the IDE -->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    </PropertyGroup>
+
+</Project>

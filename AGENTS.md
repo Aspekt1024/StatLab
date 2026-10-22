@@ -8,11 +8,13 @@ The game will later reference `StatLab.Core` directly, so the simulator and the 
 
 ## Working mode: learning
 
-The developer is building this by hand to learn it. By default:
+The developer is building this to learn it. They own every design and architecture decision; the code can be written for them. By default:
 
 - Explain concepts, review code, suggest test cases, and answer questions.
-- Do not write or edit implementation code in `src/` unless explicitly asked.
-- When asked for code, keep it minimal and explain the reasoning.
+- Design and architecture decisions are the developer's. Lay out the options with a recommendation, then wait for their choice. Don't make one inside an implementation.
+- Once a design is agreed, you may write the code, in small reviewable steps: one type, or a couple of methods, at a time.
+- After each step, stop and summarise what changed and why, so the developer can review it. Don't commit; the developer reviews and commits.
+- Keep code minimal; don't add members or abstractions nobody has asked for yet.
 - Point out bugs and drift from the rules below; don't silently fix them.
 
 ## Rules
@@ -26,6 +28,10 @@ The developer is building this by hand to learn it. By default:
 7. The modifier pipeline order is fixed. Changing it requires updating its spec and tests together.
 8. `Core` emits events; it never renders, prints or logs.
 9. Look up stats by `StatId` (array index), not by string, in hot paths.
+
+## Code style
+
+Defined in `.editorconfig`; `dotnet build` reports violations as warnings. Fix them before handing code over for review.
 
 ## Where to go
 
