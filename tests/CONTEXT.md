@@ -6,7 +6,7 @@
 
 | Project                      | Purpose |
 |------------------------------| --- |
-| `StatLab.Core.Tests` (NUnit) | Correctness of formulas, pipeline and data structures |
+| `StatLab.Core.Tests` (xUnit) | Correctness of formulas, pipeline and data structures |
 | `StatLab.Balance.Tests`      | Balance targets per ruleset (milestone 5, not yet created) |
 
 ## Reads
@@ -18,7 +18,8 @@
 
 - Build fixtures in code (small, explicit `StatBlock`s and modifiers). Tests never read files from `data/`.
 - Expected values are hand-calculated and written in the test, with the arithmetic in a comment.
-- Compare floats with a tolerance, never `==`.
+- Compare floats with a tolerance, never `==`: `Assert.Equal(expected, actual, tolerance: 1e-9)`.
+- Use `[Fact]` for a single case, `[Theory]` with `[InlineData]` for the same behaviour over several inputs.
 - Any randomness uses a fixed seed.
 - One behaviour per test; name tests after the behaviour (`PercentAdd_modifiers_sum_before_multiplying`).
 

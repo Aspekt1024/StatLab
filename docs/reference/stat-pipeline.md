@@ -9,6 +9,12 @@
 
 `StatId` is an enum used as an array index. `StatBlock` holds base values in an array indexed by `StatId`.
 
+`StatId` values are implicit: declaration order sets the array index, so values are contiguous from 0.
+
+- Values are runtime indices only and may change when stats are added or reordered. Never persist or transmit them.
+- Anything persisted (data files, Unity assets, saves, replays) stores the stat by name and converts to `StatId` on load. Renaming a stat is therefore a breaking change to persisted data.
+- Primary vs derived is not inferred from value ranges.
+
 ## Modifiers
 
 A modifier changes one stat, from one source:
