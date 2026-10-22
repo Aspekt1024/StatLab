@@ -23,10 +23,20 @@ A modifier changes one stat, from one source:
 | --- | --- |
 | `Stat` | The `StatId` it changes |
 | `Type` | `Flat`, `PercentAdd` or `PercentMult` |
-| `Value` | `12` for flat, `0.05` for 5% |
-| `Source` | The item, buff or talent that produced it |
+| `Value` | `12` for flat, `0.05` for 5%; negative for debuffs |
+| `Source` | `SourceId` of the item instance, buff or talent that produced it |
 
 Gear, buffs, talents and crafted items all produce modifiers; the pipeline does not care where they came from. Removing a source removes all of its modifiers.
+
+`Modifier` is an immutable value (`readonly record struct`). To change one, remove it and add a new one.
+
+### Sources
+
+`SourceId` identifies one instance (this copy of the ring, this application of the buff), not a definition. Two copies of the same ring have different `SourceId`s, so removing one leaves the other.
+
+- `SourceId` is a runtime-only `int`, assigned by a counter in game state. Never from `Guid.NewGuid()` or a static counter (rule 3).
+- Never persisted. Saves identify item instances by GUID; on load, each instance is assigned a fresh `SourceId`.
+- Modifiers are not persisted with a source. An item instance stores its rolled modifiers; the source is attached when it is equipped.
 
 ## Order of operations (fixed)
 

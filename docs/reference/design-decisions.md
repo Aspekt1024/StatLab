@@ -12,6 +12,7 @@
 | Formulas vs numbers | Formulas in code, numbers in data | Types, tests and debugging for formulas; tuning without recompiling |
 | Data format | Plain CSV/JSON loaded once into immutable `GameData` | Engine never depends on spreadsheet formats; parsing cost is one-off |
 | Stat identity | Implicit `StatId` values (declaration order) as runtime indices; persisted by name | Array indexing in hot paths; reordering or adding stats never breaks saved data or Unity assets |
+| Modifier sources | Runtime-only `int` `SourceId` per instance, from a counter in game state; GUIDs only at the save boundary | Two copies of one item stay distinct; deterministic IDs; removal by source instead of re-subtracting values |
 | Formula modes | Whole `IRuleset` implementations (e.g. vertical, bounded) with their own data | Mixing formulas from different systems produces nonsense |
 | Items | Hand-designed, stats generated from a budget | Retuning weights updates all items |
 | Co-op loot | Shared pool; items bind to a character on assignment until death | Fairness; attachment to one's own character |
