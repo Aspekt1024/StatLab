@@ -25,4 +25,14 @@ public class StatIdTests
             StatIds.IsPrimary(stat); // Throws if stat is not defined
         }
     }
+    
+    // A StatId can only exist in either the PrimaryStats array, or the DerivedStats array, but never both
+    [Fact]
+    public void No_primary_StatId_is_also_defined_as_derived()
+    {
+        foreach (StatId derivedStat in StatIds.DerivedStats)
+        {
+            Assert.DoesNotContain(derivedStat, StatIds.PrimaryStats);
+        }
+    }
 }

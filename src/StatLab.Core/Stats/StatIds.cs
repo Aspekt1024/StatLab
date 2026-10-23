@@ -22,8 +22,8 @@ public static class StatIds
     public static readonly int Count = Enum.GetValues<StatId>().Length;
 
     // Every stat is listed, so a new StatId must be classified here or IsPrimary throws an exception.
-    private static readonly StatId[] PrimaryStats = [StatId.Strength, StatId.Agility, StatId.Intellect, StatId.Stamina];
-    private static readonly StatId[] DerivedStats = [StatId.MaxHealth, StatId.MaxMana, StatId.AttackPower, StatId.CritChance, StatId.Armor];
+    public static readonly StatId[] PrimaryStats = [StatId.Strength, StatId.Agility, StatId.Intellect, StatId.Stamina];
+    public static readonly StatId[] DerivedStats = [StatId.MaxHealth, StatId.MaxMana, StatId.AttackPower, StatId.CritChance, StatId.Armor];
 
     public static bool IsPrimary(StatId stat)
     {
