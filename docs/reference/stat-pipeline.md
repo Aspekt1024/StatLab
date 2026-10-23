@@ -36,7 +36,8 @@ Gear, buffs, talents and crafted items all produce modifiers; the pipeline does 
 
 - `SourceId` is a runtime-only `int`, assigned by a counter in game state. Never from `Guid.NewGuid()` or a static counter (rule 3).
 - Never persisted. Saves identify item instances by GUID; on load, each instance is assigned a fresh `SourceId`.
-- Modifiers are not persisted with a source. An item instance stores its rolled modifiers; the source is attached when it is equipped.
+- Modifiers are not persisted with a source. An item instance stores its rolled modifiers; the caller sets the source (`modifier with { Source = id }`) when it is equipped.
+- `ModifierSet.Add(source, modifiers)` throws if any modifier's `Source` differs from `source`, or if `source` was already added.
 
 ## Order of operations (fixed)
 

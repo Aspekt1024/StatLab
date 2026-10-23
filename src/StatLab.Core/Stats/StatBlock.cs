@@ -3,13 +3,11 @@
 // Base stat values, indexed by StatId. Knows nothing about modifiers or final values.
 public sealed class StatBlock
 {
-    private static readonly int StatCount = Enum.GetValues<StatId>().Length;
-
     private readonly double[] _values;
 
     public StatBlock()
     {
-        _values = new double[StatCount];
+        _values = new double[StatIds.Count];
     }
 
     private StatBlock(double[] values)
