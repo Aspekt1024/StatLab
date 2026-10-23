@@ -1,4 +1,3 @@
-using StatLab.Core.Rulesets;
 using StatLab.Core.Stats;
 
 namespace StatLab.Core.Tests.Stats;
@@ -7,22 +6,7 @@ public class StatCalculatorTests
 {
     private const double Tolerance = 1e-9;
     private static readonly SourceId Sword = new(1);
-
-    // MaxHealth = Stamina × 10, CritChance = Agility × 0.01. Every other derived stat converts to 0.
-    private sealed class TestRuleset : IRuleset
-    {
-        public double Convert(StatId derivedStat, StatBlock finalPrimaries)
-        {
-            return derivedStat switch
-            {
-                StatId.MaxHealth => finalPrimaries[StatId.Stamina] * 10,
-                StatId.CritChance => finalPrimaries[StatId.Agility] * 0.01,
-                _ => 0,
-            };
-        }
-    }
-
-    private static readonly TestRuleset Ruleset = new();
+    private static readonly TestRuleset Ruleset = TestRuleset.Instance;
 
     [Fact]
     public void Primary_stat_is_its_base_plus_its_modifiers()

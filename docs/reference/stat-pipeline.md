@@ -70,7 +70,7 @@ Conversion rules belong to the ruleset, not the pipeline.
 ## Rounding and caching
 
 - Calculate in floating point; round only for display or final integer damage.
-- Recalculating on every query is fine for now. A dirty flag is a later optimization; don't build it yet.
+- `StatSheet` recalculates every final stat on every change (base set, source added or removed) and caches the result; reads are an array lookup. Recalculating everything means there is no dependency tracking to get wrong. Don't add a dirty flag or partial updates unless profiling asks for it.
 
 ## Changing this spec
 
