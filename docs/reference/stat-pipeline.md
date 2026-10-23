@@ -67,6 +67,13 @@ Conversion rules belong to the ruleset, not the pipeline.
 - Which stats are primary is fixed in Core (`StatIds.IsPrimary`), not by the ruleset.
 - `StatCalculator.Calculate(bases, modifiers, ruleset)` runs all three phases and owns their order.
 
+## Caps and clamping
+
+- `IRuleset.Clamp(stat, value)` applies the ruleset's limits (e.g. crit cap, MaxHealth ≥ 1). Limit values are tuning numbers and belong in the ruleset's data.
+- Every stat is clamped right after its own pipeline: primaries before conversion, so a debuff past zero can't produce a negative conversion; derived stats last.
+- Clamping applies to final values only, never to intermediate sums inside the pipeline.
+- Current health is a resource, not a stat; keeping it ≥ 0 is combat's job.
+
 ## Rounding and caching
 
 - Calculate in floating point; round only for display or final integer damage.

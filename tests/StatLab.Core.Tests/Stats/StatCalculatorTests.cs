@@ -75,6 +75,58 @@ public class StatCalculatorTests
     }
 
     [Fact]
+    public void Crit_above_the_cap_is_clamped_to_the_cap()
+    {
+        StatBlock bases = new() { [StatId.Agility] = 100 };
+
+        StatBlock final = StatCalculator.Calculate(bases, new ModifierSet(), Ruleset);
+
+        // 100 × 0.01 = 1.0; capped at 0.75
+        Assert.Equal(0.75, final[StatId.CritChance], Tolerance);
+    }
+
+    [Fact]
+    public void Crit_within_the_cap_is_unchanged()
+    {
+        StatBlock bases = new() { [StatId.Agility] = 50 };
+
+        StatBlock final = StatCalculator.Calculate(bases, new ModifierSet(), Ruleset);
+
+        // 50 × 0.01 = 0.5; below the 0.75 cap
+        Assert.Equal(0.5, final[StatId.CritChance], Tolerance);
+    }
+
+    [Fact]
+    public void Max_health_is_clamped_to_at_least_one()
+    {
+        StatBlock bases = new() { [StatId.Stamina] = 10 };
+        ModifierSet modifiers = new();
+        modifiers.Add(Sword, [new Modifier(StatId.MaxHealth, ModifierType.Flat, -500, Sword)]);
+
+        StatBlock final = StatCalculator.Calculate(bases, modifiers, Ruleset);
+
+        // 10 × 10 - 500 = -400; clamped to 1
+        Assert.Equal(1, final[StatId.MaxHealth], Tolerance);
+    }
+
+    [Fact]
+    public void Negative_primary_is_clamped_before_conversion()
+    {
+        StatBlock bases = new()
+        {
+            [StatId.Stamina] = 10,
+            [StatId.MaxHealth] = 50,
+        };
+        ModifierSet modifiers = new();
+        modifiers.Add(Sword, [new Modifier(StatId.Stamina, ModifierType.Flat, -30, Sword)]);
+
+        StatBlock final = StatCalculator.Calculate(bases, modifiers, Ruleset);
+
+        // Stamina 10 - 30 = -20; clamped to 0. MaxHealth 50 + 0 × 10 = 50, not 50 - 200
+        Assert.Equal(50, final[StatId.MaxHealth], Tolerance);
+    }
+
+    [Fact]
     public void Percent_modifier_on_a_derived_stat_scales_base_and_conversion()
     {
         StatBlock bases = new()
