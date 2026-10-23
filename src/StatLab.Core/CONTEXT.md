@@ -23,7 +23,7 @@ Milestone 1, in build order:
 5. Add and remove modifiers by source.
 6. Derived stats: primaries first, then ruleset conversions, then the pipeline again on derived stats.
 
-Planned folders: `Stats/`, `Combat/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
+Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
 
 ## Writes
 

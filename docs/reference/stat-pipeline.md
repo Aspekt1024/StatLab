@@ -62,6 +62,11 @@ Within one stat, modifiers are applied in canonical order: sorted by `Type`, the
 
 Conversion rules belong to the ruleset, not the pipeline.
 
+- A derived stat's pipeline base is its own base value plus the conversion: `MaxHealth = base + Stamina × rate`. Mobs can set derived stats directly and have no primaries.
+- `IRuleset.Convert(derivedStat, finalPrimaries)` returns one stat's conversion. All conversions are computed before any derived stat is written.
+- Which stats are primary is fixed in Core (`StatIds.IsPrimary`), not by the ruleset.
+- `StatCalculator.Calculate(bases, modifiers, ruleset)` runs all three phases and owns their order.
+
 ## Rounding and caching
 
 - Calculate in floating point; round only for display or final integer damage.

@@ -15,4 +15,14 @@ public class StatIdTests
             Assert.Equal(i, (int)values[i]);
         }
     }
+
+    // IsPrimary throws for an unclassified stat, so this fails when a new StatId isn't added there.
+    [Fact]
+    public void Every_stat_is_classified_as_primary_or_derived()
+    {
+        foreach (StatId stat in Enum.GetValues<StatId>())
+        {
+            StatIds.IsPrimary(stat); // Throws if stat is not defined
+        }
+    }
 }
