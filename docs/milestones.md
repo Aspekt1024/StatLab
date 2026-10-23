@@ -4,8 +4,8 @@
 
 | # | Milestone | Status |
 | --- | --- | --- |
-| 1 | Stats, modifiers, pipeline, derived stats, with unit tests | **Current** |
-| 2 | Combat formulas, `IRuleset`, duel loop | Not started |
+| 1 | Stats, modifiers, pipeline, derived stats, with unit tests | Done |
+| 2 | Combat formulas, `IRuleset`, duel loop | **Current** |
 | 3 | Item budget, item loading (`StatLab.Data`) | Not started |
 | 4 | CLI runner: `run`, `sweep`, CSV output (`StatLab.Sim`) | Not started |
 | 5 | Three balance questions answered and turned into tests | Not started |

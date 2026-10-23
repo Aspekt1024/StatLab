@@ -25,15 +25,15 @@
 
 ## Milestone 1 cases
 
-- [ ] Base value with no modifiers returns the base
-- [ ] Flat modifiers add
-- [ ] Two PercentAdd modifiers sum before multiplying (+10%, +10% → ×1.2)
-- [ ] Two PercentMult modifiers compound (+10%, +10% → ×1.21)
-- [ ] Flat applies before percentages (base 10, +5 flat, +50% → 22.5)
-- [ ] Removing by source restores the original value
-- [ ] Removing a source with modifiers on several stats removes all of them
-- [ ] Caps and clamps hold (crit cap, health ≥ 0)
-- [ ] A Stamina modifier flows through to max health via the derived phase
-- [ ] A modifier on a derived stat (e.g. +1% crit) applies after conversion
-- [ ] Negative modifiers (debuffs) behave correctly
-- [ ] A stat with no modifiers and a zero base returns zero
+- [x] Base value with no modifiers returns the base
+- [x] Flat modifiers add
+- [x] Two PercentAdd modifiers sum before multiplying (+10%, +10% → ×1.2)
+- [x] Two PercentMult modifiers compound (+10%, +10% → ×1.21)
+- [x] Flat applies before percentages (base 10, +5 flat, +50% → 22.5)
+- [x] Removing by source restores the original value
+- [x] Removing a source with modifiers on several stats removes all of them
+- [x] Caps and clamps hold (crit cap, health ≥ 0)
+- [x] A Stamina modifier flows through to max health via the derived phase
+- [x] A modifier on a derived stat (e.g. +1% crit) applies after conversion
+- [x] Negative modifiers (debuffs) behave correctly
+- [x] A stat with no modifiers and a zero base returns zero

@@ -4,9 +4,9 @@ Current milestone: see `docs/milestones.md`.
 
 | Task | Read | Status |
 | --- | --- | --- |
-| Stats, modifiers, pipeline, derived stats | `src/StatLab.Core/CONTEXT.md`, `docs/reference/stat-pipeline.md` | Active (milestone 1) |
+| Combat formulas, rulesets, duel loop | `src/StatLab.Core/CONTEXT.md`, `docs/reference/rulesets.md` | Active (milestone 2); `rulesets.md` not yet written |
+| Stats, modifiers, pipeline, derived stats | `src/StatLab.Core/CONTEXT.md`, `docs/reference/stat-pipeline.md` | Done (milestone 1); read when changing stat code |
 | Writing or reviewing tests | `tests/CONTEXT.md` | Active |
-| Combat formulas, rulesets, duel loop | `src/StatLab.Core/CONTEXT.md`, `docs/reference/rulesets.md` | Milestone 2, not yet written |
 | Item budget, item generation | `docs/reference/item-budget.md` | Milestone 3 |
 | Loading and validating data files | `src/StatLab.Data/CONTEXT.md` | Milestone 3, not yet created |
 | CLI runner, sweeps, CSV output | `src/StatLab.Sim/CONTEXT.md` | Milestone 4, not yet created |
