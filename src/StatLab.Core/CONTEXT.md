@@ -20,7 +20,7 @@ Milestone 1 (done): `StatId`, `StatBlock`, `Modifier`, `StatPipeline`, `Modifier
 Milestone 2, in build order. Each step lists the decisions to make before building it.
 
 1. **`DeterministicRng`** (`Random/`), done: xoshiro256** seeded through SplitMix64, written out in Core so the sequence is identical on every runtime. A class with `Clone()`; public API is `NextDouble()` in [0, 1). Add `NextInt` when something needs it. A test pins the seed 42 sequence to reference values.
-2. **`Combatant`** (`Combat/`): id, level, `StatSheet`, current health (a resource, not a stat).
+2. **`Combatant`** (`Combat/`), done: `CombatantId`, level, a private `StatSheet` read through `combatant[stat]`, current health (a resource, not a stat). Starts at full health.
    - Decided: mutable state changed only by Core (`internal` setters). Every mutable type has a deep `Clone()` and an allocation-free `CopyFrom(other)`, so a history type can snapshot before each `Apply` and realtime can later use a ring buffer. Immutable parts (rulesets, definitions, `Modifier` arrays) are shared, not copied.
    - Decided: the RNG and all counters (step, `SourceId`) live inside the game state, so `Apply(state, command)` needs no rng parameter and one snapshot captures everything. Name counters by step, not turn.
 3. **`IRuleset` combat members, config and id:** `rulesets.md` open decisions 1, 4, 5 and 6.

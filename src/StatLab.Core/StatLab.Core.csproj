@@ -7,4 +7,9 @@
         <RootNamespace>StatLab.Core</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <!-- Tests can set internal state directly; the game and Sim can't -->
+        <InternalsVisibleTo Include="StatLab.Core.Tests" />
+    </ItemGroup>
+
 </Project>
