@@ -115,4 +115,55 @@ public class ModifierSetTests
 
         Assert.Equal([lowFlat, highFlat, percent], set.For(StatId.Strength).ToArray());
     }
+
+    [Fact]
+    public void Clone_has_the_same_modifiers()
+    {
+        Modifier strength = new(StatId.Strength, ModifierType.Flat, 5, Sword);
+        ModifierSet original = new();
+        original.Add(Sword, [strength]);
+
+        ModifierSet clone = original.Clone();
+
+        Assert.Equal([strength], clone.For(StatId.Strength).ToArray());
+    }
+
+    [Fact]
+    public void Adding_to_a_clone_does_not_change_the_original()
+    {
+        ModifierSet original = new();
+        ModifierSet clone = original.Clone();
+
+        clone.Add(Ring, [new Modifier(StatId.Strength, ModifierType.Flat, 3, Ring)]);
+
+        Assert.True(original.For(StatId.Strength).IsEmpty);
+    }
+
+    [Fact]
+    public void Removing_from_a_clone_does_not_change_the_original()
+    {
+        Modifier strength = new(StatId.Strength, ModifierType.Flat, 5, Sword);
+        ModifierSet original = new();
+        original.Add(Sword, [strength]);
+        ModifierSet clone = original.Clone();
+
+        clone.Remove(Sword);
+
+        Assert.Equal([strength], original.For(StatId.Strength).ToArray());
+    }
+
+    [Fact]
+    public void CopyFrom_replaces_existing_sources()
+    {
+        Modifier fromRing = new(StatId.Strength, ModifierType.Flat, 3, Ring);
+        ModifierSet source = new();
+        source.Add(Ring, [fromRing]);
+        ModifierSet target = new();
+        target.Add(Sword, [new Modifier(StatId.Strength, ModifierType.Flat, 5, Sword)]);
+
+        target.CopyFrom(source);
+
+        Assert.Equal([fromRing], target.For(StatId.Strength).ToArray());
+        Assert.False(target.Remove(Sword));
+    }
 }

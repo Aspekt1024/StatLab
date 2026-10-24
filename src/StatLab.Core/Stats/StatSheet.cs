@@ -8,7 +8,7 @@ public sealed class StatSheet
 {
     private readonly StatBlock _bases;
     private readonly ModifierSet _modifiers = new();
-    private readonly IRuleset _ruleset;
+    private IRuleset _ruleset;
     private StatBlock _final;
 
     public StatSheet(StatBlock bases, IRuleset ruleset)
@@ -42,6 +42,23 @@ public sealed class StatSheet
 
         Recalculate();
         return true;
+    }
+
+    public StatSheet Clone()
+    {
+        StatSheet clone = new(_bases, _ruleset);
+        clone.CopyFrom(this);
+        return clone;
+    }
+
+    // Overwrites this sheet with other's bases, modifiers and final values, without allocating.
+    // The ruleset is shared, not copied: rulesets are stateless.
+    public void CopyFrom(StatSheet other)
+    {
+        _bases.CopyFrom(other._bases);
+        _modifiers.CopyFrom(other._modifiers);
+        _final.CopyFrom(other._final);
+        _ruleset = other._ruleset;
     }
 
     private void Recalculate()

@@ -70,4 +70,28 @@ public class StatBlockTests
 
         Assert.Equal(10, original[StatId.Strength], Tolerance);
     }
+
+    [Fact]
+    public void CopyFrom_overwrites_every_value()
+    {
+        StatBlock source = new() { [StatId.Strength] = 10 };
+        StatBlock target = new() { [StatId.Strength] = 3, [StatId.Armor] = 7 };
+
+        target.CopyFrom(source);
+
+        Assert.Equal(10, target[StatId.Strength], Tolerance);
+        Assert.Equal(0, target[StatId.Armor], Tolerance);
+    }
+
+    [Fact]
+    public void Changing_the_source_after_CopyFrom_does_not_change_the_target()
+    {
+        StatBlock source = new() { [StatId.Strength] = 10 };
+        StatBlock target = new();
+        target.CopyFrom(source);
+
+        source[StatId.Strength] = 99;
+
+        Assert.Equal(10, target[StatId.Strength], Tolerance);
+    }
 }

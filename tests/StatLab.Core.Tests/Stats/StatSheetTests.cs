@@ -65,4 +65,44 @@ public class StatSheetTests
         // Still 10 × 10 = 100
         Assert.Equal(100, sheet[StatId.MaxHealth], Tolerance);
     }
+
+    [Fact]
+    public void Changing_a_clone_does_not_change_the_original()
+    {
+        StatSheet original = new(new StatBlock { [StatId.Stamina] = 10 }, TestRuleset.Instance);
+        StatSheet clone = original.Clone();
+
+        clone.AddSource(Sword, [new Modifier(StatId.Stamina, ModifierType.Flat, 5, Sword)]);
+        clone.SetBase(StatId.Stamina, 20);
+
+        // Still 10 × 10 = 100
+        Assert.Equal(100, original[StatId.MaxHealth], Tolerance);
+    }
+
+    [Fact]
+    public void CopyFrom_restores_an_earlier_snapshot()
+    {
+        StatSheet sheet = new(new StatBlock { [StatId.Stamina] = 10 }, TestRuleset.Instance);
+        StatSheet snapshot = sheet.Clone();
+        sheet.AddSource(Sword, [new Modifier(StatId.Stamina, ModifierType.Flat, 5, Sword)]);
+
+        sheet.CopyFrom(snapshot);
+
+        // Back to 10 × 10 = 100, and the sword is gone
+        Assert.Equal(100, sheet[StatId.MaxHealth], Tolerance);
+        Assert.False(sheet.RemoveSource(Sword));
+    }
+
+    [Fact]
+    public void Changing_the_source_after_CopyFrom_does_not_change_the_target()
+    {
+        StatSheet source = new(new StatBlock { [StatId.Stamina] = 10 }, TestRuleset.Instance);
+        StatSheet target = new(new StatBlock(), TestRuleset.Instance);
+        target.CopyFrom(source);
+
+        source.AddSource(Sword, [new Modifier(StatId.Stamina, ModifierType.Flat, 5, Sword)]);
+
+        // Still 10 × 10 = 100
+        Assert.Equal(100, target[StatId.MaxHealth], Tolerance);
+    }
 }

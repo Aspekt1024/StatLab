@@ -40,6 +40,15 @@ public sealed class DeterministicRng
         return new DeterministicRng(_s0, _s1, _s2, _s3);
     }
 
+    // Overwrites this generator's state with other's, without allocating; both then continue identically.
+    public void CopyFrom(DeterministicRng other)
+    {
+        _s0 = other._s0;
+        _s1 = other._s1;
+        _s2 = other._s2;
+        _s3 = other._s3;
+    }
+
     private ulong NextULong()
     {
         var result = RotateLeft(_s1 * 5, 7) * 9;

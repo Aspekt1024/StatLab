@@ -25,4 +25,10 @@ public sealed class StatBlock
     {
         return new StatBlock((double[])_values.Clone());
     }
+
+    // Overwrites this block's values with other's, without allocating.
+    public void CopyFrom(StatBlock other)
+    {
+        Array.Copy(other._values, _values, _values.Length);
+    }
 }

@@ -50,12 +50,37 @@ public sealed class ModifierSet
         return _byStat[(int)stat];
     }
 
+    public ModifierSet Clone()
+    {
+        ModifierSet clone = new();
+        clone.CopyFrom(this);
+        return clone;
+    }
+
+    // Overwrites this set with other's sources and groups. The Modifier[] arrays are shared, not copied:
+    // they're never changed after creation (Add copies its input; Rebuild makes new arrays).
+    public void CopyFrom(ModifierSet other)
+    {
+        if (ReferenceEquals(other, this))
+        {
+            return;
+        }
+
+        _bySource.Clear();
+        foreach (KeyValuePair<SourceId, Modifier[]> entry in other._bySource)
+        {
+            _bySource.Add(entry.Key, entry.Value);
+        }
+
+        Array.Copy(other._byStat, _byStat, _byStat.Length);
+    }
+
     private void Rebuild()
     {
         List<Modifier>[] grouped = new List<Modifier>[StatIds.Count];
         for (var i = 0; i < StatIds.Count; i++)
         {
-            grouped[i] = new List<Modifier>();
+            grouped[i] = [];
         }
 
         foreach (Modifier[] modifiers in _bySource.Values)

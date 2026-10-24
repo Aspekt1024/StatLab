@@ -77,4 +77,17 @@ public class DeterministicRngTests
         // The original still produces the first value of the seed 42 sequence.
         Assert.Equal(0.08386297105988216, original.NextDouble(), Tolerance);
     }
+
+    // Restoring a snapshot's rng must replay the same rolls, or rollback diverges.
+    [Fact]
+    public void CopyFrom_continues_the_source_sequence()
+    {
+        DeterministicRng source = new(Seed);
+        source.NextDouble();
+        DeterministicRng target = new(Seed + 1);
+
+        target.CopyFrom(source);
+
+        Assert.Equal(source.NextDouble(), target.NextDouble(), Tolerance);
+    }
 }

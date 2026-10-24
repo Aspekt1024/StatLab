@@ -4,10 +4,12 @@
 
 | Decision | Choice | Why |
 | --- | --- | --- |
-| Combat | Turn-based | Easier to balance, paper-prototype and network |
+| Combat | Turn-based first; realtime mode planned on the same Core | Turn-based is easier to balance, paper-prototype and network. Core counts steps, never clock time, so realtime is a different loop (fixed-rate ticks) over the same state |
+| Time | Core advances in discrete steps (`Step` counter); turn-based is one step per action, realtime is fixed-rate ticks | No clock time in Core (rule 3); one model serves both modes |
 | Multiplayer | Co-op (2–4, peer-hosted) as default | Small-group play; no servers |
 | Architecture | Presentation separate from core logic | Testability; co-op becomes "send commands" |
-| State changes | `Apply(state, command, rng) → (state, events)` | Determinism, replays, co-op |
+| State changes | `Apply(state, command) → events`. State is mutable, changed only by Core (`internal` setters); the RNG and all counters live inside the state | Determinism, replays, co-op. Mutable fits `StatSheet` and avoids allocating per step; one state object means one snapshot captures everything |
+| Rollback | Snapshots taken outside `Apply` by a history type; every mutable state type has a deep `Clone()` and an allocation-free `CopyFrom(other)`; a state checksum detects missed fields and desyncs | Undo, previews, AI lookahead and desync recovery now; a ring buffer of pre-allocated snapshots for realtime rollback later. Sweeps call `Apply` directly and pay nothing |
 | Language | C# | Runs standalone and in Unity/Godot without a language boundary |
 | Formulas vs numbers | Formulas in code, numbers in data | Types, tests and debugging for formulas; tuning without recompiling |
 | Data format | Plain CSV/JSON loaded once into immutable `GameData` | Engine never depends on spreadsheet formats; parsing cost is one-off |
@@ -27,3 +29,6 @@
 - Solo scaling vs group scaling (deferred). Goal: players care about their own character, not managing others' gear.
 - Whether death is permanent (affects how much item binding stings).
 - Engine choice; check target framework and C# version before writing much `Core` code.
+- Network model. Host-authoritative (only the host must be deterministic; floating point stays fine) vs lockstep or peer rollback (every peer must produce identical bits across machines and runtimes, likely pushing towards fixed-point). Leaning host-authoritative, which fits "peer-hosted".
+- Duration units for buffs, cooldowns and attack speed: steps in Core, with each mode defining how long a turn is, or durations authored per mode. Balance targets differ too (turns-to-kill vs seconds-to-kill).
+- Positions and range: simple spatial state in Core (positions, distances, maybe a grid) vs the engine sending only commands. Core must decide outcomes; engine physics must not.
