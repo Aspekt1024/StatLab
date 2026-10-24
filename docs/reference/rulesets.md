@@ -24,25 +24,28 @@ A ruleset is a complete set of formulas for one formula mode (e.g. vertical WoW-
 
 ## Contract
 
-Decided (milestone 1):
-
 | Member | Purpose | Spec |
 | --- | --- | --- |
+| `string Id` | Stable name, e.g. `"vertical"`. Recorded in every results CSV; names the data folder `data/<id>/` | — |
 | `double Convert(StatId derivedStat, StatBlock finalPrimaries)` | One derived stat's contribution from final primaries | `stat-pipeline.md`, Derived stats |
 | `double Clamp(StatId stat, double value)` | Limits applied to each stat's final value | `stat-pipeline.md`, Caps and clamping |
+| `AttackOutcome ResolveAttack(Combatant attacker, Combatant defender, DeterministicRng rng)` | Resolves one whole attack: lands or not, crit or not, damage after mitigation | Below |
 
-Milestone 2 adds combat members; their shape is open decision 1 below.
+### Attacks
+
+- The ruleset resolves the **whole** attack; Core decides **when** attacks happen. This fits WoW-style roll tables and 5e-style d20 vs armour class alike. The ruleset's internal formulas (mitigation, crit) can be separate methods with their own tests.
+- `AttackOutcome(AttackResult Result, double Damage)`. `AttackResult` is `Miss`, `Hit` or `Critical`, shared by every ruleset; a ruleset produces only the kinds it uses. Adding a kind (e.g. `Dodge`) is an enum addition.
+- Damage is after mitigation, never negative, unrounded (rule 6), and 0 on a miss.
+- The ruleset never changes the combatants. Core applies the outcome to health.
+
+### Level and configuration
+
+- Level is a `Combatant` property, not a `StatId`. Gear and buffs don't change it; level gaps act through ruleset formulas (balance question 3).
+- Tuning numbers come from an immutable config record per ruleset (e.g. `VerticalRulesetConfig`), passed to the ruleset's constructor. Tests build it in code; milestone 3 loads it from `data/<id>/`.
 
 ## Open decisions (milestone 2)
 
 Each lists the options and a recommendation. Move a decision into the sections above once it's made.
-
-### 1. How much of an attack the ruleset decides
-
-- **A. The ruleset resolves the whole attack (recommended):** `AttackOutcome ResolveAttack(Combatant attacker, Combatant defender, DeterministicRng rng)` returns hit/miss, crit and damage. Core owns *when* attacks happen; the ruleset owns *how* one resolves. Fits very different rulesets: WoW-style roll tables and 5e-style d20 vs armour class are both one method.
-- **B. Core sequences fine-grained formulas:** `HitChance`, `CritChance`, `BaseDamage`, `Mitigation`, called by Core in a fixed order. Mirrors how `StatCalculator` owns phase order, but forces every ruleset into the same attack structure, which a bounded ruleset may not fit.
-
-Either way, a ruleset's internal formulas (mitigation, crit) can be separate methods with their own tests.
 
 ### 2. Attack roll structure (inside the vertical ruleset)
 
@@ -53,21 +56,6 @@ Either way, a ruleset's internal formulas (mitigation, crit) can be separate met
 
 - **A. Diminishing returns (recommended):** `reduction = armor / (armor + K × attackerLevel + C)`. Never reaches 100%; scales with level, which matters for balance question 1 (time-to-kill across levels). K and C are data.
 - **B. Flat reduction:** `damage - armor`. Simple, but at high armour damage hits zero; needs a minimum-damage rule.
-
-### 4. Where level lives
-
-- **A. A combatant property, not a stat (recommended):** gear and buffs don't modify level; level gap affects hit chance and mitigation through ruleset formulas (balance question 3).
-- **B. A `StatId`:** goes through the pipeline like any stat, so a "+1 level" buff is possible. Mixes a progression concept into stats.
-
-### 5. Ruleset configuration
-
-- **A. An immutable config record per ruleset (recommended):** e.g. `VerticalRulesetConfig` with mitigation constants, crit cap, conversion rates; passed to the ruleset's constructor. Tests build it in code now; milestone 3 loads it from `data/vertical/`.
-- **B. Constants in code until milestone 3:** fastest now, but breaks rule 4 and means rewriting the ruleset later.
-
-### 6. Ruleset identity
-
-- **A. `string Id` on `IRuleset` (recommended):** e.g. `"vertical"`. Every results CSV records the ruleset id (design decision), and the id names the data folder.
-- **B. Use the type name:** no extra member, but renaming the class silently changes recorded results.
 
 ## Not in milestone 2
 
