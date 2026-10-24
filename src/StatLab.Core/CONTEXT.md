@@ -24,7 +24,7 @@ Milestone 2, in build order. Each step lists the decisions to make before buildi
    - Decided: mutable state changed only by Core (`internal` setters). Every mutable type has a deep `Clone()` and an allocation-free `CopyFrom(other)`, so a history type can snapshot before each `Apply` and realtime can later use a ring buffer. Immutable parts (rulesets, definitions, `Modifier` arrays) are shared, not copied.
    - Decided: the RNG and all counters (step, `SourceId`) live inside the game state, so `Apply(state, command)` needs no rng parameter and one snapshot captures everything. Name counters by step, not turn.
 3. **`IRuleset` combat members, config and id**, done: `Id`, `ResolveAttack` returning `AttackOutcome(AttackResult, Damage)`. Contract in `rulesets.md`.
-4. **Vertical ruleset** (`Rulesets/`): conversions, limits and attack resolution. `rulesets.md` open decisions 2 and 3.
+4. **Vertical ruleset** (`Rulesets/Vertical/`), done: `VerticalRuleset` and `VerticalRulesetConfig`. Formulas in `rulesets.md`, Vertical ruleset.
 5. **Commands and events** (`Combat/`): an `Attack` command; `Apply(state, command, rng) → (state, events)`.
    - Open: event shape. Recommended: small record types (`AttackResolved`, `CombatantDefeated`) returned as a list, as the design decision describes. Alternative: an event sink interface Core calls, which avoids the list but is harder to test.
 6. **Duel loop** (`Combat/`): two combatants take turns until one is defeated.

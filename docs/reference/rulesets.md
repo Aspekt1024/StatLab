@@ -43,19 +43,16 @@ A ruleset is a complete set of formulas for one formula mode (e.g. vertical WoW-
 - Level is a `Combatant` property, not a `StatId`. Gear and buffs don't change it; level gaps act through ruleset formulas (balance question 3).
 - Tuning numbers come from an immutable config record per ruleset (e.g. `VerticalRulesetConfig`), passed to the ruleset's constructor. Tests build it in code; milestone 3 loads it from `data/<id>/`.
 
-## Open decisions (milestone 2)
+## Vertical ruleset (`"vertical"`)
 
-Each lists the options and a recommendation. Move a decision into the sections above once it's made.
+WoW-style scaling: numbers grow a lot with level and gear. `VerticalRuleset`, tuned by `VerticalRulesetConfig`.
 
-### 2. Attack roll structure (inside the vertical ruleset)
-
-- **A. Single roll table (recommended for vertical):** one roll decides miss / dodge / crit / hit, WoW-style. One rng draw per attack; outcome chances are easy to read and to balance.
-- **B. Independent rolls:** roll to hit, then roll to crit. Simpler to explain; two draws; crit chance is effectively reduced by miss chance.
-
-### 3. Armour mitigation formula (vertical ruleset)
-
-- **A. Diminishing returns (recommended):** `reduction = armor / (armor + K × attackerLevel + C)`. Never reaches 100%; scales with level, which matters for balance question 1 (time-to-kill across levels). K and C are data.
-- **B. Flat reduction:** `damage - armor`. Simple, but at high armour damage hits zero; needs a minimum-damage rule.
+- **Conversions:** MaxHealth from Stamina, MaxMana from Intellect, AttackPower from Strength, CritChance from Agility, each at a configured rate. Armor comes from bases and gear only.
+- **Limits:** CritChance in [0, `MaxCritChance`]; MaxHealth ≥ 1; every other stat ≥ 0. The floors are structural; only the crit cap is tuning.
+- **Attack roll:** one roll in [0, 1) against stacked ranges: miss, then crit, then hit. If miss + crit exceed 1, crit is squeezed into what's left. One rng draw per attack.
+- **Miss chance:** `BaseMissChance + MissChancePerLevel × levels the defender is above the attacker`. Never below base.
+- **Damage:** `AttackPower × DamagePerAttackPower`, × `CritMultiplier` on a crit, then × (1 − armour reduction). No damage spread until weapons arrive (milestone 3).
+- **Armour reduction:** `armor / (armor + ArmorPerAttackerLevel × attackerLevel + ArmorConstant)`. Diminishing returns: never reaches 100%, and the same armour counts for less against higher-level attackers. `ArmorConstant` must be above 0 (validate at load, milestone 3).
 
 ## Not in milestone 2
 
