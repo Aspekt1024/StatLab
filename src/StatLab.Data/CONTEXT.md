@@ -21,7 +21,7 @@ Milestone 3, in build order. Steps marked **Core** add types or formulas to `Sta
    - The level curve is a per-level table (one row per item level, any shape). Slots are defined in data, not an enum. Stats round half away from zero (2.5 → 3).
    - Core throws for a missing level, slot or stat weight; Data's load validation (step 5) must check shares sum to 1, weights and multipliers are above 0, and power modifiers are above 0.
 2. **Core: class base stats** (`Progression/`), done. `ClassId` (readable key) and `ClassDefinition`: one full row of base stats per level, any stat (primaries and derived bases such as a class base MaxHealth). Read through `BaseStats(level)`, which returns a copy; a missing level throws. Data's validation (step 5) must check every level a character can reach has a row.
-3. **Core: `GameData`.** One immutable object holding everything loaded: ruleset config, budget tables, items and classes by id.
+3. **Core: `GameData`**, done. One immutable object per ruleset folder: a ready `IRuleset` (Data builds it from its config), the budget tables, items and classes. Lookups are methods (`Item`, `Class`, `TryGetItem`, `TryGetClass`) whose errors name the id; `Items` and `Classes` are read-only lists sorted by id, ordinal. Item stats are computed once at build (`ItemStats(id)`), so table errors fail at load.
 4. **Data: project and ruleset config.** Create `StatLab.Data` and `StatLab.Data.Tests`, reference Newtonsoft.Json, and load `data/vertical/` config into `VerticalRulesetConfig` with validation. Add a JSON Schema per file type (`*.schema.json`) for autocomplete and checks in Rider.
 5. **Data: budget tables, items and classes.** Before building, settle the progression model (open question in `design-decisions.md`): it decides whether class files hold per-level tables or starting stats plus XP curves. Stat, slot, item and class names converted on load; every reference must exist; shares sum to 100%.
 6. **Data: loading a whole ruleset folder into `GameData`,** reporting every error found.
@@ -48,7 +48,7 @@ Milestone 3, in build order. Steps marked **Core** add types or formulas to `Sta
 - **Parsing and validation only.** No formulas here: the budget formula, conversions and combat stay in Core.
 - **Names in files, ids in memory.** Stats, slots, items and classes are referenced by name in files; unknown names are load errors, never silent zeros.
 - **Every load is validated.** Bad data fails at load with a clear message, never mid-fight.
-- **Deterministic.** The same files give the same `GameData`. Anything iterated (items, tables) is ordered by id, not by file or dictionary order.
+- **Deterministic.** The same files give the same `GameData` on every machine. Anything iterated (items, classes) is ordered by id with ordinal comparison, never by file, folder-listing or dictionary order, which differ between operating systems. Seeded picks from a list (loot) and sim output depend on it.
 - May do file IO (unlike Core); the loader itself works on text, not paths.
 - Tests load from strings built in the test (`tests/CONTEXT.md`: tests never read `data/`). Checking that the real `data/` folder loads cleanly belongs to a Sim CLI validation command (milestone 5), unless that rule gets an exception.
 
