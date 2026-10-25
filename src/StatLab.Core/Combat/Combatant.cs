@@ -1,3 +1,4 @@
+using StatLab.Core.Hashing;
 using StatLab.Core.Rulesets;
 using StatLab.Core.Stats;
 
@@ -49,5 +50,14 @@ public sealed class Combatant
         Level = other.Level;
         Health = other.Health;
         _stats.CopyFrom(other._stats);
+    }
+
+    internal void AddToChecksum(Checksum checksum)
+    {
+        checksum.Add(Id.Value);
+        checksum.Add((int)Team);
+        checksum.Add(Level);
+        checksum.Add(Health);
+        _stats.AddToChecksum(checksum);
     }
 }

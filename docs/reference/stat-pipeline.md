@@ -52,7 +52,7 @@ Example: base 10, +5 flat, +50% → (10 + 5) × 1.5 = 22.5.
 - **PercentAdd** sums: two +10% give +20%. Use for common sources.
 - **PercentMult** compounds: two +10% give +21%. Use sparingly; stacks grow fast.
 
-Within one stat, modifiers are applied in canonical order: sorted by `Type`, then `Value`. Floating-point addition is not associative, so this makes the result depend only on the set of modifiers, not on source IDs or the order they were added. Same set, same bits: required for save/load and co-op peers to agree.
+Within one stat, modifiers are applied in canonical order: sorted by `Type`, then `Value`, then `Source`. Floating-point addition is not associative, so this makes the result depend only on the set of modifiers, not on the order they were added. Same set, same bits: required for save/load and co-op peers to agree. The source tie-break never changes a total (tied modifiers have equal values), but it makes equal sets identical, so they also give equal state checksums.
 
 ## Derived stats
 

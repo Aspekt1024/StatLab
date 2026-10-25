@@ -116,6 +116,21 @@ public class ModifierSetTests
         Assert.Equal([lowFlat, highFlat, percent], set.For(StatId.Strength).ToArray());
     }
 
+    // Ties (same type and value) are ordered by source, so equal sets are identical however they were built.
+    [Fact]
+    public void Modifiers_with_the_same_type_and_value_are_ordered_by_source()
+    {
+        Modifier fromSword = new(StatId.Strength, ModifierType.Flat, 5, Sword);
+        Modifier fromRing = new(StatId.Strength, ModifierType.Flat, 5, Ring);
+        ModifierSet set = new();
+
+        set.Add(Ring, [fromRing]);
+        set.Add(Sword, [fromSword]);
+
+        // Sword is source 1, ring is source 2
+        Assert.Equal([fromSword, fromRing], set.For(StatId.Strength).ToArray());
+    }
+
     [Fact]
     public void Clone_has_the_same_modifiers()
     {

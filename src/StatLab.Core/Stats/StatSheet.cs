@@ -1,3 +1,4 @@
+using StatLab.Core.Hashing;
 using StatLab.Core.Rulesets;
 
 namespace StatLab.Core.Stats;
@@ -62,6 +63,14 @@ public sealed class StatSheet
         _modifiers.CopyFrom(other._modifiers);
         _final.CopyFrom(other._final);
         _ruleset = other._ruleset;
+    }
+
+    internal void AddToChecksum(Checksum checksum)
+    {
+        checksum.Add(_ruleset.Id);
+        _bases.AddToChecksum(checksum);
+        _modifiers.AddToChecksum(checksum);
+        _final.AddToChecksum(checksum);
     }
 
     private void Recalculate()

@@ -1,3 +1,5 @@
+using StatLab.Core.Hashing;
+
 namespace StatLab.Core.Random;
 
 // Seeded random numbers for Core (AGENTS.md rule 3). Same seed, same sequence, on every runtime.
@@ -47,6 +49,14 @@ public sealed class DeterministicRng
         _s1 = other._s1;
         _s2 = other._s2;
         _s3 = other._s3;
+    }
+
+    internal void AddToChecksum(Checksum checksum)
+    {
+        checksum.Add(_s0);
+        checksum.Add(_s1);
+        checksum.Add(_s2);
+        checksum.Add(_s3);
     }
 
     private ulong NextULong()

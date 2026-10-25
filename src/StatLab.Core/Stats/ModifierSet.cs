@@ -1,7 +1,9 @@
+using StatLab.Core.Hashing;
+
 namespace StatLab.Core.Stats;
 
 // Holds each source's modifiers and keeps them grouped by stat for StatPipeline.
-// Groups are rebuilt from scratch on every change and sorted by content (type, then value),
+// Groups are rebuilt from scratch on every change and sorted by content (type, value, then source),
 // so the same set of modifiers always produces the same order. See docs/reference/stat-pipeline.md.
 public sealed class ModifierSet
 {
@@ -75,6 +77,33 @@ public sealed class ModifierSet
         Array.Copy(other._byStat, _byStat, _byStat.Length);
     }
 
+    // Hashes the sorted groups (their order is fixed by content and source), plus the set of sources,
+    // which also covers sources added with no modifiers. Sources are combined by summing, so dictionary
+    // order doesn't matter.
+    internal void AddToChecksum(Checksum checksum)
+    {
+        foreach (Modifier[] modifiers in _byStat)
+        {
+            checksum.Add(modifiers.Length);
+            foreach (Modifier modifier in modifiers)
+            {
+                checksum.Add((int)modifier.Stat);
+                checksum.Add((int)modifier.Type);
+                checksum.Add(modifier.Value);
+                checksum.Add(modifier.Source.Value);
+            }
+        }
+
+        ulong sources = 0;
+        foreach (SourceId source in _bySource.Keys)
+        {
+            sources += Checksum.Of((ulong)source.Value);
+        }
+
+        checksum.Add(_bySource.Count);
+        checksum.Add(sources);
+    }
+
     private void Rebuild()
     {
         List<Modifier>[] grouped = new List<Modifier>[StatIds.Count];
@@ -98,9 +127,17 @@ public sealed class ModifierSet
         }
     }
 
+    // Type, then value, then source. The source tie-break doesn't change any total (tied modifiers have
+    // equal values), but it fixes the order completely, so equal sets are identical and hash the same.
     private static int CompareByContent(Modifier a, Modifier b)
     {
         var byType = a.Type.CompareTo(b.Type);
-        return byType != 0 ? byType : a.Value.CompareTo(b.Value);
+        if (byType != 0)
+        {
+            return byType;
+        }
+
+        var byValue = a.Value.CompareTo(b.Value);
+        return byValue != 0 ? byValue : a.Source.Value.CompareTo(b.Source.Value);
     }
 }

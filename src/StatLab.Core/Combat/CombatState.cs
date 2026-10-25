@@ -1,3 +1,4 @@
+using StatLab.Core.Hashing;
 using StatLab.Core.Random;
 using StatLab.Core.Rulesets;
 
@@ -151,5 +152,23 @@ public sealed class CombatState
         {
             _combatants.Add(combatant.Clone());
         }
+    }
+
+    // One number for the whole state: equal states give equal checksums on every machine. Compare it to
+    // detect desyncs, verify replays, find the first step where two runs diverge, or pin a fight in a test.
+    public ulong ComputeChecksum()
+    {
+        Checksum checksum = new();
+        checksum.Add(Ruleset.Id);
+        Rng.AddToChecksum(checksum);
+        checksum.Add(Step);
+        checksum.Add(_turnIndex);
+        checksum.Add(_combatants.Count);
+        foreach (Combatant combatant in _combatants)
+        {
+            combatant.AddToChecksum(checksum);
+        }
+
+        return checksum.Value;
     }
 }

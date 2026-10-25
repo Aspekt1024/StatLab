@@ -23,6 +23,7 @@
 - Use `[Fact]` for a single case, `[Theory]` with `[InlineData]` for the same behaviour over several inputs.
 - Any randomness uses a fixed seed.
 - One behaviour per test; name tests after the behaviour (`PercentAdd_modifiers_sum_before_multiplying`).
+- Golden-master tests pin a whole outcome to one value (an rng sequence, a fight's state checksum). When one fails, find what changed the outcome; update the pinned value only if the change was intended, and say so in the commit.
 
 ## Milestone 1 cases
 

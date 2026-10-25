@@ -1,4 +1,6 @@
-﻿namespace StatLab.Core.Stats;
+﻿using StatLab.Core.Hashing;
+
+namespace StatLab.Core.Stats;
 
 // Base stat values, indexed by StatId. Knows nothing about modifiers or final values.
 public sealed class StatBlock
@@ -30,5 +32,13 @@ public sealed class StatBlock
     public void CopyFrom(StatBlock other)
     {
         Array.Copy(other._values, _values, _values.Length);
+    }
+
+    internal void AddToChecksum(Checksum checksum)
+    {
+        foreach (var value in _values)
+        {
+            checksum.Add(value);
+        }
     }
 }

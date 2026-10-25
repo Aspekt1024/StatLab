@@ -28,11 +28,11 @@ Milestone 2, in build order. Each step lists the decisions to make before buildi
 5. **Commands and events** (`Combat/`), done: `CombatState` (ruleset, rng, step, combatants; deep `Clone` and `CopyFrom`), `AttackCommand`, event records (`AttackResolved`, `CombatantDefeated`, `CommandRejected`), and `CombatRules.Apply(state, command) → events`.
    - `CombatState` holds its ruleset (shared, not copied) and rejects combatants built with another ruleset (rule 5).
    - Invalid commands return `CommandRejected` and leave state, including the rng, untouched. Unknown command types throw. `Step` counts accepted commands.
-   - Still to do: a state checksum, to catch fields `Clone`/`CopyFrom` miss and to detect co-op desyncs.
+   - State checksum, done: `CombatState.ComputeChecksum()`, FNV-1a 64-bit (`Hashing/Checksum`), fed by an internal `AddTo` on each state type. **When adding a field to a state type, update `Clone`, `CopyFrom` and `AddTo` together**; they sit side by side for that reason. A golden-master test pins one fight's checksum.
 6. **Turns and fight end** (`Combat/`), done: each `Combatant` has a `Team`; `CombatState` has `CurrentActor` (turn order is the order combatants were passed in, skipping the defeated), `IsOver` (one team has no one standing) and `Winner`. `Apply` rejects `NotYourTurn` and `FightOver`. The game and the sim share these rules.
 7. **Duel driver** (`StatLab.Sim`, not Core), done: `Duel.Run(state, playerPolicy, enemyPolicy, maxSteps = 100)` asks each team's `ICombatPolicy` for its combatants' commands until the fight is over or the cap is hit (a draw). The game never runs it: players and enemy AI issue their own commands. The cap counts attempts, not `Step`, so rejected commands can't loop forever.
 
-Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
+Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Hashing/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
 
 ## Writes
 
