@@ -17,7 +17,7 @@ public class CombatantTests
     [Fact]
     public void New_combatant_starts_at_full_health()
     {
-        Combatant combatant = new(Warrior, 1, SheetWithStamina(10));
+        Combatant combatant = new(Warrior, Team.Player, 1, SheetWithStamina(10));
 
         // MaxHealth 10 × 10 = 100
         Assert.Equal(100, combatant.Health, Tolerance);
@@ -26,7 +26,7 @@ public class CombatantTests
     [Fact]
     public void Stats_read_the_final_values()
     {
-        Combatant combatant = new(Warrior, 1, SheetWithStamina(10));
+        Combatant combatant = new(Warrior, Team.Player, 1, SheetWithStamina(10));
 
         Assert.Equal(10, combatant[StatId.Stamina], Tolerance);
         Assert.Equal(100, combatant[StatId.MaxHealth], Tolerance);
@@ -37,7 +37,7 @@ public class CombatantTests
     public void Changing_the_original_sheet_does_not_change_the_combatant()
     {
         StatSheet sheet = SheetWithStamina(10);
-        Combatant combatant = new(Warrior, 1, sheet);
+        Combatant combatant = new(Warrior, Team.Player, 1, sheet);
 
         sheet.SetBase(StatId.Stamina, 50);
 
@@ -47,7 +47,7 @@ public class CombatantTests
     [Fact]
     public void Clone_has_the_same_id_level_health_and_stats()
     {
-        Combatant original = new(Warrior, 3, SheetWithStamina(10));
+        Combatant original = new(Warrior, Team.Player, 3, SheetWithStamina(10));
         original.Health = 40;
 
         Combatant clone = original.Clone();
@@ -61,7 +61,7 @@ public class CombatantTests
     [Fact]
     public void Changing_a_clone_does_not_change_the_original()
     {
-        Combatant original = new(Warrior, 1, SheetWithStamina(10));
+        Combatant original = new(Warrior, Team.Player, 1, SheetWithStamina(10));
         Combatant clone = original.Clone();
 
         clone.Health = 25;
@@ -74,7 +74,7 @@ public class CombatantTests
     [Fact]
     public void CopyFrom_restores_an_earlier_snapshot()
     {
-        Combatant combatant = new(Warrior, 1, SheetWithStamina(10));
+        Combatant combatant = new(Warrior, Team.Player, 1, SheetWithStamina(10));
         Combatant snapshot = combatant.Clone();
         combatant.Health = 10;
         combatant.Level = 2;

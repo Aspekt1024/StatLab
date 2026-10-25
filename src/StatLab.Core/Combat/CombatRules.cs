@@ -2,6 +2,7 @@ namespace StatLab.Core.Combat;
 
 // The only way combat state changes: Apply(state, command) → events. Changes state in place.
 // Invalid commands are rejected with an event and leave state (including the rng) untouched.
+// Each accepted command passes the turn to the next combatant still standing.
 public static class CombatRules
 {
     public static IReadOnlyList<CombatEvent> Apply(CombatState state, Command command)
@@ -22,7 +23,18 @@ public static class CombatRules
             return [new CommandRejected(command, RejectionReason.UnknownCombatant)];
         }
 
-        if (attacker.IsDefeated || target.IsDefeated)
+        if (state.IsOver)
+        {
+            return [new CommandRejected(command, RejectionReason.FightOver)];
+        }
+
+        // A defeated attacker is never the current actor, so this also covers attackers who are down.
+        if (attacker.Id != state.CurrentActor)
+        {
+            return [new CommandRejected(command, RejectionReason.NotYourTurn)];
+        }
+
+        if (target.IsDefeated)
         {
             return [new CommandRejected(command, RejectionReason.CombatantDefeated)];
         }
@@ -30,6 +42,7 @@ public static class CombatRules
         AttackOutcome outcome = state.Ruleset.ResolveDamage(attacker, target, state.Ruleset.BasicAttack, state.Rng);
         target.Health = Math.Max(target.Health - outcome.Damage, 0);
         state.Step++;
+        state.AdvanceTurn();
 
         List<CombatEvent> events =
         [

@@ -16,7 +16,7 @@ public class VerticalRulesetTests
 
     private static Combatant MakeCombatant(int id, int level, StatBlock bases)
     {
-        return new Combatant(new CombatantId(id), level, new StatSheet(bases, Ruleset));
+        return new Combatant(new CombatantId(id), Team.Player, level, new StatSheet(bases, Ruleset));
     }
 
     [Theory]

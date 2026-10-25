@@ -9,6 +9,7 @@
 | Multiplayer | Co-op (2–4, peer-hosted) as default | Small-group play; no servers |
 | Architecture | Presentation separate from core logic | Testability; co-op becomes "send commands" |
 | State changes | `Apply(state, command) → events`. State is mutable, changed only by Core (`internal` setters); the RNG and all counters live inside the state | Determinism, replays, co-op. Mutable fits `StatSheet` and avoids allocating per step; one state object means one snapshot captures everything |
+| Fight rules vs strategy | Turn order, fight end and winner (by `Team`) live in Core; choosing commands (`ICombatPolicy`) and the duel driver live in `StatLab.Sim` | The game and the sim must share the rules or balance results won't match play; strategies differ per caller (player input, enemy AI, balance policies) |
 | Rollback | Snapshots taken outside `Apply` by a history type; every mutable state type has a deep `Clone()` and an allocation-free `CopyFrom(other)`; a state checksum detects missed fields and desyncs | Undo, previews, AI lookahead and desync recovery now; a ring buffer of pre-allocated snapshots for realtime rollback later. Sweeps call `Apply` directly and pay nothing |
 | Language | C# | Runs standalone and in Unity/Godot without a language boundary |
 | Formulas vs numbers | Formulas in code, numbers in data | Types, tests and debugging for formulas; tuning without recompiling |

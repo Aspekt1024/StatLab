@@ -3,11 +3,13 @@ using StatLab.Core.Rulesets;
 
 namespace StatLab.Core.Combat;
 
-// Everything a fight's outcome depends on: ruleset, rng, step counter and combatants.
+// Everything a fight's outcome depends on: ruleset, rng, step counter, turn and combatants.
 // One Clone() or CopyFrom() captures all of it. Changed only by CombatRules.Apply.
+// Turn order is the order combatants were passed in; defeated combatants are skipped.
 public sealed class CombatState
 {
     private readonly List<Combatant> _combatants = new();
+    private int _turnIndex;
 
     // Copies the combatants. Throws if any were built with a different ruleset (rule 5) or ids repeat.
     public CombatState(IRuleset ruleset, ulong seed, IEnumerable<Combatant> combatants)
@@ -38,6 +40,7 @@ public sealed class CombatState
         Ruleset = other.Ruleset;
         Rng = other.Rng.Clone();
         Step = other.Step;
+        _turnIndex = other._turnIndex;
         foreach (Combatant combatant in other._combatants)
         {
             _combatants.Add(combatant.Clone());
@@ -52,7 +55,46 @@ public sealed class CombatState
 
     public IReadOnlyList<Combatant> Combatants => _combatants;
 
+    // Over when either team has no one standing.
+    public bool IsOver => !AnyStanding(Team.Player) || !AnyStanding(Team.Enemy);
+
+    // The team with someone still standing once the fight is over. Null while it's ongoing, or if no one is standing.
+    public Team? Winner
+    {
+        get
+        {
+            if (!IsOver)
+            {
+                return null;
+            }
+
+            if (AnyStanding(Team.Player))
+            {
+                return Team.Player;
+            }
+
+            return AnyStanding(Team.Enemy) ? Team.Enemy : null;
+        }
+    }
+
+    // Whose turn it is. Null once the fight is over.
+    public CombatantId? CurrentActor => IsOver ? null : _combatants[_turnIndex].Id;
+
     internal DeterministicRng Rng { get; }
+
+    // Moves the turn to the next combatant still standing, wrapping around.
+    internal void AdvanceTurn()
+    {
+        for (var offset = 1; offset <= _combatants.Count; offset++)
+        {
+            var index = (_turnIndex + offset) % _combatants.Count;
+            if (!_combatants[index].IsDefeated)
+            {
+                _turnIndex = index;
+                return;
+            }
+        }
+    }
 
     public Combatant? Find(CombatantId id)
     {
@@ -67,6 +109,19 @@ public sealed class CombatState
         return null;
     }
 
+    private bool AnyStanding(Team team)
+    {
+        foreach (Combatant combatant in _combatants)
+        {
+            if (combatant.Team == team && !combatant.IsDefeated)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public CombatState Clone()
     {
         return new CombatState(this);
@@ -79,6 +134,7 @@ public sealed class CombatState
         Ruleset = other.Ruleset;
         Rng.CopyFrom(other.Rng);
         Step = other.Step;
+        _turnIndex = other._turnIndex;
 
         if (_combatants.Count == other._combatants.Count)
         {

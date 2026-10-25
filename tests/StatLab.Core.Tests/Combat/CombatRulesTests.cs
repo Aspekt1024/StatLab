@@ -12,6 +12,7 @@ public class CombatRulesTests
     private const ulong Seed = 7;
     private static readonly CombatantId Warrior = new(1);
     private static readonly CombatantId Goblin = new(2);
+    private static readonly CombatantId Grunt = new(3);
     private static readonly CombatantId Nobody = new(99);
 
     private sealed record UnknownCommand : Command;
@@ -20,19 +21,32 @@ public class CombatRulesTests
     private static CombatState ExactDuel(double warriorAttackPower)
     {
         IRuleset ruleset = TestRuleset.Instance;
-        Combatant warrior = new(Warrior, 1, new StatSheet(
+        Combatant warrior = new(Warrior, Team.Player, 1, new StatSheet(
             new StatBlock { [StatId.Stamina] = 10, [StatId.AttackPower] = warriorAttackPower }, ruleset));
-        Combatant goblin = new(Goblin, 1, new StatSheet(new StatBlock { [StatId.Stamina] = 10 }, ruleset));
+        Combatant goblin = new(Goblin, Team.Enemy, 1, new StatSheet(new StatBlock { [StatId.Stamina] = 10 }, ruleset));
         return new CombatState(ruleset, Seed, [warrior, goblin]);
+    }
+
+    // One warrior (kills in one hit) against two enemies, in turn order warrior, goblin, grunt.
+    private static CombatState Skirmish()
+    {
+        IRuleset ruleset = TestRuleset.Instance;
+        Combatant warrior = new(Warrior, Team.Player, 1, new StatSheet(
+            new StatBlock { [StatId.Stamina] = 10, [StatId.AttackPower] = 150 }, ruleset));
+        Combatant goblin = new(Goblin, Team.Enemy, 1, new StatSheet(
+            new StatBlock { [StatId.Stamina] = 10, [StatId.AttackPower] = 10 }, ruleset));
+        Combatant grunt = new(Grunt, Team.Enemy, 1, new StatSheet(
+            new StatBlock { [StatId.Stamina] = 10, [StatId.AttackPower] = 10 }, ruleset));
+        return new CombatState(ruleset, Seed, [warrior, goblin, grunt]);
     }
 
     // The vertical ruleset rolls for miss and crit, so outcomes depend on the rng.
     private static CombatState RolledDuel()
     {
         IRuleset ruleset = TestVerticalRuleset.Instance;
-        Combatant warrior = new(Warrior, 1, new StatSheet(
+        Combatant warrior = new(Warrior, Team.Player, 1, new StatSheet(
             new StatBlock { [StatId.Strength] = 20, [StatId.Agility] = 20, [StatId.Stamina] = 30 }, ruleset));
-        Combatant goblin = new(Goblin, 1, new StatSheet(
+        Combatant goblin = new(Goblin, Team.Enemy, 1, new StatSheet(
             new StatBlock { [StatId.Strength] = 15, [StatId.Stamina] = 25, [StatId.Armor] = 50 }, ruleset));
         return new CombatState(ruleset, Seed, [warrior, goblin]);
     }
@@ -113,7 +127,88 @@ public class CombatRulesTests
     }
 
     [Fact]
+    public void First_listed_combatant_acts_first()
+    {
+        CombatState state = ExactDuel(warriorAttackPower: 30);
+
+        Assert.Equal(Warrior, state.CurrentActor);
+    }
+
+    [Fact]
+    public void Accepted_command_passes_the_turn_to_the_next_combatant()
+    {
+        CombatState state = ExactDuel(warriorAttackPower: 30);
+
+        CombatRules.Apply(state, new AttackCommand(Warrior, Goblin));
+
+        Assert.Equal(Goblin, state.CurrentActor);
+    }
+
+    [Fact]
+    public void Command_out_of_turn_is_rejected_and_changes_nothing()
+    {
+        CombatState state = ExactDuel(warriorAttackPower: 30);
+        AttackCommand command = new(Goblin, Warrior);
+
+        IReadOnlyList<CombatEvent> events = CombatRules.Apply(state, command);
+
+        CombatEvent[] expected = [new CommandRejected(command, RejectionReason.NotYourTurn)];
+        Assert.Equal(expected, events);
+        Assert.Equal(100, state.Find(Warrior)!.Health, Tolerance);
+        Assert.Equal(Warrior, state.CurrentActor);
+    }
+
+    [Fact]
+    public void Defeated_combatants_are_skipped_in_turn_order()
+    {
+        CombatState state = Skirmish();
+
+        CombatRules.Apply(state, new AttackCommand(Warrior, Goblin));
+
+        // Turn order is warrior, goblin, grunt; the goblin is down, so the grunt is next
+        Assert.Equal(Grunt, state.CurrentActor);
+    }
+
+    [Fact]
     public void Attack_on_a_defeated_target_is_rejected()
+    {
+        CombatState state = Skirmish();
+        CombatRules.Apply(state, new AttackCommand(Warrior, Goblin));
+        CombatRules.Apply(state, new AttackCommand(Grunt, Warrior));
+        AttackCommand command = new(Warrior, Goblin);
+
+        IReadOnlyList<CombatEvent> events = CombatRules.Apply(state, command);
+
+        CombatEvent[] expected = [new CommandRejected(command, RejectionReason.CombatantDefeated)];
+        Assert.Equal(expected, events);
+        Assert.Equal(2, state.Step);
+    }
+
+    [Fact]
+    public void Fight_is_not_over_while_both_teams_have_someone_standing()
+    {
+        CombatState state = Skirmish();
+
+        CombatRules.Apply(state, new AttackCommand(Warrior, Goblin));
+
+        Assert.False(state.IsOver);
+        Assert.Null(state.Winner);
+    }
+
+    [Fact]
+    public void Fight_is_over_when_one_team_has_no_one_standing()
+    {
+        CombatState state = ExactDuel(warriorAttackPower: 150);
+
+        CombatRules.Apply(state, new AttackCommand(Warrior, Goblin));
+
+        Assert.True(state.IsOver);
+        Assert.Equal(Team.Player, state.Winner);
+        Assert.Null(state.CurrentActor);
+    }
+
+    [Fact]
+    public void Commands_after_the_fight_is_over_are_rejected()
     {
         CombatState state = ExactDuel(warriorAttackPower: 150);
         AttackCommand command = new(Warrior, Goblin);
@@ -121,7 +216,7 @@ public class CombatRulesTests
 
         IReadOnlyList<CombatEvent> events = CombatRules.Apply(state, command);
 
-        CombatEvent[] expected = [new CommandRejected(command, RejectionReason.CombatantDefeated)];
+        CombatEvent[] expected = [new CommandRejected(command, RejectionReason.FightOver)];
         Assert.Equal(expected, events);
         Assert.Equal(1, state.Step);
     }

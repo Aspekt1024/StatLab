@@ -18,5 +18,7 @@ public sealed record CommandRejected(Command Command, RejectionReason Reason) : 
 public enum RejectionReason
 {
     UnknownCombatant,
+    FightOver,
+    NotYourTurn,
     CombatantDefeated,
 }

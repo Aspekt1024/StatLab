@@ -29,9 +29,8 @@ Milestone 2, in build order. Each step lists the decisions to make before buildi
    - `CombatState` holds its ruleset (shared, not copied) and rejects combatants built with another ruleset (rule 5).
    - Invalid commands return `CommandRejected` and leave state, including the rng, untouched. Unknown command types throw. `Step` counts accepted commands.
    - Still to do: a state checksum, to catch fields `Clone`/`CopyFrom` miss and to detect co-op desyncs.
-6. **Duel loop** (`Combat/`): two combatants take turns until one is defeated.
-   - Open: who acts first. Recommended: a fixed order for now (the first combatant passed in), so results don't depend on an extra roll. Alternatives: alternate who goes first per run, or an initiative stat.
-   - Open: turn cap. Recommended: a maximum turn count after which the duel ends in a draw, so a duel where neither side can damage the other always ends.
+6. **Turns and fight end** (`Combat/`), done: each `Combatant` has a `Team`; `CombatState` has `CurrentActor` (turn order is the order combatants were passed in, skipping the defeated), `IsOver` (one team has no one standing) and `Winner`. `Apply` rejects `NotYourTurn` and `FightOver`. The game and the sim share these rules.
+7. **Duel driver** (`StatLab.Sim`, not Core): `Duel.Run(state, policies, maxSteps = 100)` asks an `ICombatPolicy` per combatant for commands until the fight is over or the cap is hit (a draw). The game never runs it: players and enemy AI issue their own commands. The cap counts attempts, not `Step`, so rejected commands can't loop forever.
 
 Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
 
