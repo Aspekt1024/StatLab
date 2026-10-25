@@ -56,7 +56,7 @@ WoW-style scaling: numbers grow a lot with level and gear. `VerticalRuleset`, tu
 - **Attack roll:** one roll in [0, 1) against stacked ranges: miss, then crit, then hit. If miss + crit exceed 1, crit is squeezed into what's left. One rng draw per attack.
 - **Miss chance:** `BaseMissChance + MissChancePerLevel × levels the defender is above the attacker`. Never below base.
 - **Basic attack:** `AttackPower × BasicAttackCoefficient`; can miss and crit.
-- **Damage:** `attacker[spec.ScalesWith] × spec.Coefficient`, × `CritMultiplier` on a crit, then × (1 − armour reduction). No damage spread until weapons arrive (milestone 3).
+- **Damage:** `attacker[spec.ScalesWith] × spec.Coefficient`, × `CritMultiplier` on a crit, then × (1 − armour reduction). No damage spread until weapons arrive (milestone 4, with abilities).
 - **Armour reduction:** `armor / (armor + ArmorPerAttackerLevel × attackerLevel + ArmorConstant)`. Diminishing returns: never reaches 100%, and the same armour counts for less against higher-level attackers. `ArmorConstant` must be above 0 (validate at load, milestone 3).
 
 ## Not in milestone 2

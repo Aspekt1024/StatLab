@@ -42,4 +42,4 @@ Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Hashing/`, `Items/`, `Progre
 ## Done when
 
 - Milestone 2: done. Every milestone 2 case in `tests/CONTEXT.md` passes.
-- Milestone 3: build order and open decisions are in `src/StatLab.Data/CONTEXT.md` (draft). Core's parts: item types and the budget formula (`Items/`), `GameData`, and equipping items on a combatant.
+- Milestone 3: build order and decisions are in `src/StatLab.Data/CONTEXT.md`. Core's parts: item types and the budget formula (`Items/`), class base stats (`Progression/`), `GameData`, and equipping items on a combatant.

@@ -13,7 +13,10 @@
 | Rollback | Snapshots taken outside `Apply` by a history type; every mutable state type has a deep `Clone()` and an allocation-free `CopyFrom(other)`; a state checksum detects missed fields and desyncs | Undo, previews, AI lookahead and desync recovery now; a ring buffer of pre-allocated snapshots for realtime rollback later. Sweeps call `Apply` directly and pay nothing |
 | Language | C# | Runs standalone and in Unity/Godot without a language boundary |
 | Formulas vs numbers | Formulas in code, numbers in data | Types, tests and debugging for formulas; tuning without recompiling |
-| Data format | Plain CSV/JSON loaded once into immutable `GameData` | Engine never depends on spreadsheet formats; parsing cost is one-off |
+| Data format | JSON everywhere (Newtonsoft.Json, matching Unity's package), loaded once into immutable `GameData`; tables are arrays of rows; the loader reads text | One parser in the game and the sim; Unity and Godot pass text from their asset systems; rows suit a future editor. CSV only in optional import/export tools |
+| Data editing | Files in `data/` are the source of truth; a custom editor reads and writes them; JSON Schema files meanwhile | The sim can't read engine assets, so the game and sim must share the files |
+| Item ids | Readable keys (`"ring_of_might"`); instance GUIDs from the seeded rng once loot exists | Easy to write, diff and reference; renames are caught at load |
+| Item stat rounding | Whole numbers, rounded when an item's stats are generated | Item stats are what players compare (final output under rule 6); tooltip and combat agree |
 | Stat identity | Implicit `StatId` values (declaration order) as runtime indices; persisted by name | Array indexing in hot paths; reordering or adding stats never breaks saved data or Unity assets |
 | Modifier sources | Runtime-only `int` `SourceId` per instance, from a counter in game state; GUIDs only at the save boundary | Two copies of one item stay distinct; deterministic IDs; removal by source instead of re-subtracting values |
 | Modifier order within a stat | Sorted by content (type, then value), not by source or insertion | Floating-point sums depend on order; content order gives identical bits for the same set of modifiers. Rounding only moves the boundary; fixed-point is too invasive |
