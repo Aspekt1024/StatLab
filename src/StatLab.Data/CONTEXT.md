@@ -23,7 +23,7 @@ Milestone 3, in build order. Steps marked **Core** add types or formulas to `Sta
 2. **Core: class base stats** (`Progression/`), done. `ClassId` (readable key) and `ClassDefinition`: one full row of base stats per level, any stat (primaries and derived bases such as a class base MaxHealth). Read through `BaseStats(level)`, which returns a copy; a missing level throws. Data's validation (step 5) must check every level a character can reach has a row.
 3. **Core: `GameData`.** One immutable object holding everything loaded: ruleset config, budget tables, items and classes by id.
 4. **Data: project and ruleset config.** Create `StatLab.Data` and `StatLab.Data.Tests`, reference Newtonsoft.Json, and load `data/vertical/` config into `VerticalRulesetConfig` with validation. Add a JSON Schema per file type (`*.schema.json`) for autocomplete and checks in Rider.
-5. **Data: budget tables, items and classes.** Stat, slot, item and class names converted on load; every reference must exist; shares sum to 100%.
+5. **Data: budget tables, items and classes.** Before building, settle the progression model (open question in `design-decisions.md`): it decides whether class files hold per-level tables or starting stats plus XP curves. Stat, slot, item and class names converted on load; every reference must exist; shares sum to 100%.
 6. **Data: loading a whole ruleset folder into `GameData`,** reporting every error found.
 7. **Core: equipping items on a combatant.** An item's computed modifiers, stamped with a fresh `SourceId`, added to its `StatSheet`.
 
