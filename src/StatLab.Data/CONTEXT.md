@@ -17,8 +17,9 @@ Loads the JSON files in `data/` into an immutable `GameData` that Core and Sim u
 
 Milestone 3, in build order. Steps marked **Core** add types or formulas to `StatLab.Core` (formulas live in code, rule 4); steps marked **Data** add parsing and validation here.
 
-1. **Core: item types and the budget formula** (`Items/`). `ItemDefinition` (id, slot, item level, power modifier, stat shares), the budget tables (level curve, slot multipliers, stat weights), and `ItemBudget` turning a definition into whole-number stat modifiers: `budget = baseBudget(itemLevel) × slotMultiplier × powerModifier`, `statValue = round(share × budget ÷ statWeight)`.
-   - Open: the level curve as a per-level table (explicit, any shape) or a few curve parameters (e.g. `base × level^growth`; fewer numbers to tune, always smooth). Decide when building this step.
+1. **Core: item types and the budget formula** (`Items/`), done. `ItemId` and `SlotId` (readable string keys), `StatShare` (fractions: 0.6 = 60%), `ItemDefinition`, `ItemBudgetTables`, and `ItemBudget.Calculate` returning one Flat `Modifier` per share with a default source (equipping stamps it).
+   - The level curve is a per-level table (one row per item level, any shape). Slots are defined in data, not an enum. Stats round half away from zero (2.5 → 3).
+   - Core throws for a missing level, slot or stat weight; Data's load validation (step 5) must check shares sum to 1, weights and multipliers are above 0, and power modifiers are above 0.
 2. **Core: class base stats** (`Progression/`). Base primary stats per class per level (or base plus per-level growth), so characters can be built at any level for balance question 1.
 3. **Core: `GameData`.** One immutable object holding everything loaded: ruleset config, budget tables, items and classes by id.
 4. **Data: project and ruleset config.** Create `StatLab.Data` and `StatLab.Data.Tests`, reference Newtonsoft.Json, and load `data/vertical/` config into `VerticalRulesetConfig` with validation. Add a JSON Schema per file type (`*.schema.json`) for autocomplete and checks in Rider.

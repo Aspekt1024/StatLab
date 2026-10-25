@@ -22,9 +22,9 @@ budget    = baseBudget(itemLevel) × slotMultiplier × powerModifier
 statValue = round(share × budget ÷ statWeight)
 ```
 
-`baseBudget` comes from the level curve data; `slotMultiplier` and `statWeight` come from data tables.
+`baseBudget` comes from the level curve, a table with one row per item level; `slotMultiplier` and `statWeight` come from data tables. Slots are defined in data, not in code. Shares are fractions (0.6 = 60%).
 
-Each stat is rounded to a whole number when the item's stats are generated. Item stats are what players see and compare, so they count as final output (AGENTS.md rule 6), and the tooltip and combat use the same number.
+Each stat is rounded to a whole number when the item's stats are generated, with halves rounded away from zero (2.5 → 3). Item stats are what players see and compare, so they count as final output (AGENTS.md rule 6), and the tooltip and combat use the same number.
 
 ## Example
 
