@@ -5,7 +5,7 @@
 | # | Milestone | Status |
 | --- | --- | --- |
 | 1 | Stats, modifiers, pipeline, derived stats, with unit tests | Done |
-| 2 | Combat formulas, `IRuleset`, duel loop | **Current** |
+| 2 | Combat formulas, `IRuleset`, turn order; duel driver in `StatLab.Sim` | **Current** |
 | 3 | Item budget, item loading (`StatLab.Data`) | Not started |
 | 4 | Abilities: data-defined effects (damage, heal, buffs), resources, cooldowns | Not started |
 | 5 | CLI runner: `run`, `sweep`, CSV output (`StatLab.Sim`) | Not started |

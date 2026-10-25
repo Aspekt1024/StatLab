@@ -10,7 +10,8 @@ Current milestone: see `docs/milestones.md`.
 | Item budget, item generation | `docs/reference/item-budget.md` | Milestone 3 |
 | Loading and validating data files | `src/StatLab.Data/CONTEXT.md` | Milestone 3, not yet created |
 | Abilities, effects, buffs, resources | `docs/reference/abilities.md` | Milestone 4, not yet written |
-| CLI runner, sweeps, CSV output | `src/StatLab.Sim/CONTEXT.md` | Milestone 5, not yet created |
+| Duels, combat policies | `src/StatLab.Sim/CONTEXT.md` | Active (milestone 2) |
+| CLI runner, sweeps, CSV output | `src/StatLab.Sim/CONTEXT.md` | Milestone 5 |
 | Balance targets and balance tests | `docs/reference/balance-targets.md` | Milestone 6, not yet written |
 | "Why is it built this way?" | `docs/reference/design-decisions.md` | Reference |
 

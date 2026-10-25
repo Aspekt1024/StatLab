@@ -30,7 +30,7 @@ Milestone 2, in build order. Each step lists the decisions to make before buildi
    - Invalid commands return `CommandRejected` and leave state, including the rng, untouched. Unknown command types throw. `Step` counts accepted commands.
    - Still to do: a state checksum, to catch fields `Clone`/`CopyFrom` miss and to detect co-op desyncs.
 6. **Turns and fight end** (`Combat/`), done: each `Combatant` has a `Team`; `CombatState` has `CurrentActor` (turn order is the order combatants were passed in, skipping the defeated), `IsOver` (one team has no one standing) and `Winner`. `Apply` rejects `NotYourTurn` and `FightOver`. The game and the sim share these rules.
-7. **Duel driver** (`StatLab.Sim`, not Core): `Duel.Run(state, policies, maxSteps = 100)` asks an `ICombatPolicy` per combatant for commands until the fight is over or the cap is hit (a draw). The game never runs it: players and enemy AI issue their own commands. The cap counts attempts, not `Step`, so rejected commands can't loop forever.
+7. **Duel driver** (`StatLab.Sim`, not Core), done: `Duel.Run(state, playerPolicy, enemyPolicy, maxSteps = 100)` asks each team's `ICombatPolicy` for its combatants' commands until the fight is over or the cap is hit (a draw). The game never runs it: players and enemy AI issue their own commands. The cap counts attempts, not `Step`, so rejected commands can't loop forever.
 
 Planned folders: `Stats/`, `Rulesets/`, `Combat/`, `Items/`, `Progression/`, `Random/`, plus `GameData.cs`.
 

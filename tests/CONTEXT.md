@@ -7,6 +7,7 @@
 | Project                      | Purpose |
 |------------------------------| --- |
 | `StatLab.Core.Tests` (xUnit) | Correctness of formulas, pipeline and data structures |
+| `StatLab.Sim.Tests` (xUnit)  | Duel driver and policies, through Core's public API only |
 | `StatLab.Balance.Tests`      | Balance targets per ruleset (milestone 6, not yet created) |
 
 ## Reads
