@@ -21,6 +21,9 @@ public sealed class StatSheet
     // Final value, after modifiers and conversions.
     public double this[StatId stat] => _final[stat];
 
+    // Lets CombatState check every combatant uses its ruleset (rule 5).
+    internal IRuleset Ruleset => _ruleset;
+
     public void SetBase(StatId stat, double value)
     {
         _bases[stat] = value;

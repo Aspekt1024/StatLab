@@ -1,3 +1,4 @@
+using StatLab.Core.Rulesets;
 using StatLab.Core.Stats;
 
 namespace StatLab.Core.Combat;
@@ -23,8 +24,12 @@ public sealed class Combatant
     // Current health: a resource, not a stat.
     public double Health { get; internal set; }
 
+    public bool IsDefeated => Health <= 0;
+
     // Final stat value, after modifiers and conversions.
     public double this[StatId stat] => _stats[stat];
+
+    internal IRuleset Ruleset => _stats.Ruleset;
 
     public Combatant Clone()
     {

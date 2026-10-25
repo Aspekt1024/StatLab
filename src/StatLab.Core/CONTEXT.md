@@ -23,10 +23,12 @@ Milestone 2, in build order. Each step lists the decisions to make before buildi
 2. **`Combatant`** (`Combat/`), done: `CombatantId`, level, a private `StatSheet` read through `combatant[stat]`, current health (a resource, not a stat). Starts at full health.
    - Decided: mutable state changed only by Core (`internal` setters). Every mutable type has a deep `Clone()` and an allocation-free `CopyFrom(other)`, so a history type can snapshot before each `Apply` and realtime can later use a ring buffer. Immutable parts (rulesets, definitions, `Modifier` arrays) are shared, not copied.
    - Decided: the RNG and all counters (step, `SourceId`) live inside the game state, so `Apply(state, command)` needs no rng parameter and one snapshot captures everything. Name counters by step, not turn.
-3. **`IRuleset` combat members, config and id**, done: `Id`, `ResolveAttack` returning `AttackOutcome(AttackResult, Damage)`. Contract in `rulesets.md`.
+3. **`IRuleset` combat members, config and id**, done: `Id`, `BasicAttack`, and `ResolveDamage(attacker, defender, DamageSpec, rng)` returning `AttackOutcome(AttackResult, Damage)`. Contract in `rulesets.md`.
 4. **Vertical ruleset** (`Rulesets/Vertical/`), done: `VerticalRuleset` and `VerticalRulesetConfig`. Formulas in `rulesets.md`, Vertical ruleset.
-5. **Commands and events** (`Combat/`): an `Attack` command; `Apply(state, command, rng) → (state, events)`.
-   - Open: event shape. Recommended: small record types (`AttackResolved`, `CombatantDefeated`) returned as a list, as the design decision describes. Alternative: an event sink interface Core calls, which avoids the list but is harder to test.
+5. **Commands and events** (`Combat/`), done: `CombatState` (ruleset, rng, step, combatants; deep `Clone` and `CopyFrom`), `AttackCommand`, event records (`AttackResolved`, `CombatantDefeated`, `CommandRejected`), and `CombatRules.Apply(state, command) → events`.
+   - `CombatState` holds its ruleset (shared, not copied) and rejects combatants built with another ruleset (rule 5).
+   - Invalid commands return `CommandRejected` and leave state, including the rng, untouched. Unknown command types throw. `Step` counts accepted commands.
+   - Still to do: a state checksum, to catch fields `Clone`/`CopyFrom` miss and to detect co-op desyncs.
 6. **Duel loop** (`Combat/`): two combatants take turns until one is defeated.
    - Open: who acts first. Recommended: a fixed order for now (the first combatant passed in), so results don't depend on an extra roll. Alternatives: alternate who goes first per run, or an initiative stat.
    - Open: turn cap. Recommended: a maximum turn count after which the duel ends in a draw, so a duel where neither side can damage the other always ends.

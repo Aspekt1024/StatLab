@@ -9,21 +9,7 @@ public class VerticalRulesetTests
 {
     private const double Tolerance = 1e-9;
 
-    // Round numbers so the arithmetic in each test is easy to check by hand.
-    private static readonly VerticalRulesetConfig Config = new(
-        HealthPerStamina: 10,
-        ManaPerIntellect: 15,
-        AttackPowerPerStrength: 2,
-        CritChancePerAgility: 0.01,
-        MaxCritChance: 0.75,
-        DamagePerAttackPower: 1,
-        CritMultiplier: 2,
-        BaseMissChance: 0.05,
-        MissChancePerLevel: 0.01,
-        ArmorPerAttackerLevel: 50,
-        ArmorConstant: 100);
-
-    private static readonly VerticalRuleset Ruleset = new(Config);
+    private static readonly VerticalRuleset Ruleset = TestVerticalRuleset.Instance;
 
     // The first roll from seed 42 is 0.0839 (pinned in DeterministicRngTests).
     private const ulong Seed = 42;
@@ -131,7 +117,7 @@ public class VerticalRulesetTests
         Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50 });
         Combatant defender = MakeCombatant(2, 1, new StatBlock { [StatId.Stamina] = 10, [StatId.Armor] = 150 });
 
-        AttackOutcome outcome = Ruleset.ResolveAttack(attacker, defender, new DeterministicRng(Seed));
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, Ruleset.BasicAttack, new DeterministicRng(Seed));
 
         // Roll 0.0839: not below miss 0.05, crit 0 → hit. AttackPower 50 × 2 = 100; × (1 - 0.5) = 50
         Assert.Equal(AttackResult.Hit, outcome.Result);
@@ -144,7 +130,7 @@ public class VerticalRulesetTests
         Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50, [StatId.Agility] = 10 });
         Combatant defender = MakeCombatant(2, 1, new StatBlock { [StatId.Stamina] = 10, [StatId.Armor] = 150 });
 
-        AttackOutcome outcome = Ruleset.ResolveAttack(attacker, defender, new DeterministicRng(Seed));
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, Ruleset.BasicAttack, new DeterministicRng(Seed));
 
         // Roll 0.0839 is in [0.05, 0.15) → crit. 100 × 2 = 200; × (1 - 0.5) = 100
         Assert.Equal(AttackResult.Critical, outcome.Result);
@@ -157,10 +143,74 @@ public class VerticalRulesetTests
         Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50 });
         Combatant defender = MakeCombatant(2, 5, new StatBlock { [StatId.Stamina] = 10 });
 
-        AttackOutcome outcome = Ruleset.ResolveAttack(attacker, defender, new DeterministicRng(Seed));
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, Ruleset.BasicAttack, new DeterministicRng(Seed));
 
         // Miss chance 0.05 + 4 × 0.01 = 0.09; roll 0.0839 < 0.09 → miss
         Assert.Equal(AttackResult.Miss, outcome.Result);
         Assert.Equal(0, outcome.Damage, Tolerance);
+    }
+
+    [Fact]
+    public void Basic_attack_scales_with_attack_power_and_can_miss_and_crit()
+    {
+        DamageSpec expected = new(StatId.AttackPower, 1, CanMiss: true, CanCrit: true);
+
+        Assert.Equal(expected, Ruleset.BasicAttack);
+    }
+
+    [Fact]
+    public void Damage_that_cannot_miss_hits_where_a_basic_attack_would_miss()
+    {
+        Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50 });
+        Combatant defender = MakeCombatant(2, 5, new StatBlock { [StatId.Stamina] = 10 });
+        DamageSpec spec = new(StatId.AttackPower, 1, CanMiss: false, CanCrit: true);
+
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, spec, new DeterministicRng(Seed));
+
+        // Same roll as Miss_deals_no_damage, but miss chance is 0. Crit chance 0 → hit for 100
+        Assert.Equal(AttackResult.Hit, outcome.Result);
+        Assert.Equal(100, outcome.Damage, Tolerance);
+    }
+
+    [Fact]
+    public void Damage_that_cannot_crit_hits_where_a_basic_attack_would_crit()
+    {
+        Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50, [StatId.Agility] = 10 });
+        Combatant defender = MakeCombatant(2, 1, new StatBlock { [StatId.Stamina] = 10, [StatId.Armor] = 150 });
+        DamageSpec spec = new(StatId.AttackPower, 1, CanMiss: true, CanCrit: false);
+
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, spec, new DeterministicRng(Seed));
+
+        // Same roll as Critical_multiplies_damage_before_armor, but crit chance is 0 → hit. 100 × (1 - 0.5) = 50
+        Assert.Equal(AttackResult.Hit, outcome.Result);
+        Assert.Equal(50, outcome.Damage, Tolerance);
+    }
+
+    [Fact]
+    public void Coefficient_scales_damage()
+    {
+        Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50 });
+        Combatant defender = MakeCombatant(2, 1, new StatBlock { [StatId.Stamina] = 10 });
+        DamageSpec spec = new(StatId.AttackPower, 1.5, CanMiss: false, CanCrit: false);
+
+        AttackOutcome outcome = Ruleset.ResolveDamage(attacker, defender, spec, new DeterministicRng(Seed));
+
+        // AttackPower 100 × 1.5 = 150; no armour
+        Assert.Equal(150, outcome.Damage, Tolerance);
+    }
+
+    // Damage with nothing to roll leaves the rng alone, so it doesn't shift every later roll.
+    [Fact]
+    public void Damage_that_cannot_miss_or_crit_does_not_draw_from_the_rng()
+    {
+        Combatant attacker = MakeCombatant(1, 1, new StatBlock { [StatId.Strength] = 50 });
+        Combatant defender = MakeCombatant(2, 1, new StatBlock { [StatId.Stamina] = 10 });
+        DamageSpec spec = new(StatId.AttackPower, 1, CanMiss: false, CanCrit: false);
+        DeterministicRng rng = new(Seed);
+
+        Ruleset.ResolveDamage(attacker, defender, spec, rng);
+
+        // Still the first value of the seed 42 sequence
+        Assert.Equal(0.08386297105988216, rng.NextDouble(), 1e-15);
     }
 }

@@ -19,7 +19,10 @@ public interface IRuleset
     // Called for every stat; return the value unchanged if it has no limits.
     double Clamp(StatId stat, double value);
 
-    // Resolves one attack: whether it lands, whether it crits, and its damage after mitigation.
+    // The basic attack's damage, built from this ruleset's config.
+    DamageSpec BasicAttack { get; }
+
+    // Resolves one piece of damage: whether it lands, whether it crits, and its amount after mitigation.
     // Draw randomness only from rng. Don't change either combatant; Core applies the outcome.
-    AttackOutcome ResolveAttack(Combatant attacker, Combatant defender, DeterministicRng rng);
+    AttackOutcome ResolveDamage(Combatant attacker, Combatant defender, DamageSpec spec, DeterministicRng rng);
 }

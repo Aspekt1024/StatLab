@@ -5,7 +5,7 @@ using StatLab.Core.Stats;
 namespace StatLab.Core.Rulesets.Vertical;
 
 // Vertical scaling: numbers grow with level and gear; armour and miss chance scale with level.
-// Attacks use a single roll table (miss, then crit, then hit) and AttackPower-based damage with no spread.
+// Damage uses a single roll table (miss, then crit, then hit) and spec-based scaling with no spread.
 public sealed class VerticalRuleset : IRuleset
 {
     private readonly VerticalRulesetConfig _config;
@@ -40,16 +40,25 @@ public sealed class VerticalRuleset : IRuleset
         };
     }
 
-    public AttackOutcome ResolveAttack(Combatant attacker, Combatant defender, DeterministicRng rng)
+    public DamageSpec BasicAttack => new(StatId.AttackPower, _config.BasicAttackCoefficient, CanMiss: true, CanCrit: true);
+
+    // Until damage schools exist (milestone 4), armour reduces all damage.
+    public AttackOutcome ResolveDamage(Combatant attacker, Combatant defender, DamageSpec spec, DeterministicRng rng)
     {
-        var miss = MissChance(attacker.Level, defender.Level);
-        AttackResult result = RollResult(rng.NextDouble(), miss, attacker[StatId.CritChance]);
+        AttackResult result = AttackResult.Hit;
+        if (spec.CanMiss || spec.CanCrit)
+        {
+            var miss = spec.CanMiss ? MissChance(attacker.Level, defender.Level) : 0;
+            var crit = spec.CanCrit ? attacker[StatId.CritChance] : 0;
+            result = RollResult(rng.NextDouble(), miss, crit);
+        }
+
         if (result == AttackResult.Miss)
         {
             return new AttackOutcome(AttackResult.Miss, 0);
         }
 
-        var damage = attacker[StatId.AttackPower] * _config.DamagePerAttackPower;
+        var damage = attacker[spec.ScalesWith] * spec.Coefficient;
         if (result == AttackResult.Critical)
         {
             damage *= _config.CritMultiplier;

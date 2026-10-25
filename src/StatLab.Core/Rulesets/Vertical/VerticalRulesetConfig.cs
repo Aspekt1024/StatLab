@@ -12,7 +12,7 @@ public sealed record VerticalRulesetConfig(
     double MaxCritChance,
 
     // Attacks
-    double DamagePerAttackPower,
+    double BasicAttackCoefficient,
     double CritMultiplier,
     double BaseMissChance,
     double MissChancePerLevel,
