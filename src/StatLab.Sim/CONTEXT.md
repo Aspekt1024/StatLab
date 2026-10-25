@@ -25,6 +25,6 @@ The balance simulator. Drives fights built from `StatLab.Core` using strategies,
 - Parallel runs are seeded `baseSeed + runIndex`; every results CSV records ruleset id, seed and run count.
 - Unlike Core, Sim may do IO and console output (from milestone 5).
 
-## Done when (milestone 2)
+## Done when
 
-The duel cases in `tests/CONTEXT.md` pass.
+- Milestone 2: done. The duel cases in `tests/CONTEXT.md` pass.

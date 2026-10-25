@@ -39,3 +39,45 @@
 - [x] A modifier on a derived stat (e.g. +1% crit) applies after conversion
 - [x] Negative modifiers (debuffs) behave correctly
 - [x] A stat with no modifiers and a zero base returns zero
+
+## Milestone 2 cases
+
+Randomness (`DeterministicRngTests`)
+- [x] Seed 42 produces the pinned reference sequence
+- [x] Same seed, same sequence; neighbouring seeds differ
+- [x] `NextDouble` is in [0, 1)
+- [x] Clone and `CopyFrom` continue the same sequence, independently
+
+Snapshots (`StatBlockTests`, `ModifierSetTests`, `StatSheetTests`, `CombatantTests`, `CombatStateTests`)
+- [x] Every state type's `Clone` and `CopyFrom` copy everything, and changing one side leaves the other alone
+
+Vertical ruleset (`VerticalRulesetTests`)
+- [x] Primaries convert to derived stats; armour has no conversion
+- [x] Crit is capped, MaxHealth ≥ 1, other stats ≥ 0
+- [x] Armour reduction has diminishing returns and counts for less against higher-level attackers
+- [x] Miss chance grows per level the defender is above, never below base
+- [x] The roll table stacks miss, crit, hit, and squeezes crit when they exceed 100%
+- [x] Hit, crit and miss damage for a basic attack
+- [x] Damage specs: can't miss, can't crit, coefficient, and no rng draw when nothing rolls
+
+Applying commands (`CombatRulesTests`, `CombatStateTests`)
+- [x] An attack reduces health, never below 0, and emits `AttackResolved` then `CombatantDefeated`
+- [x] Rejections (unknown combatant, fight over, not your turn, defeated target) leave state untouched
+- [x] Unknown command types throw
+- [x] Combatants built with another ruleset, or with repeated ids, are rejected
+- [x] Turn order: first listed acts first, the turn passes on, defeated combatants are skipped
+- [x] The fight is over when one team has no one standing; `Winner` is the team left
+- [x] Same seed and commands produce identical events
+- [x] Restoring a snapshot replays identical events
+
+Checksum (`ChecksumTests`, `CombatStateChecksumTests`, `ModifierSetTests`)
+- [x] Matches published FNV-1a vectors; 0.0 and -0.0 differ; string boundaries matter
+- [x] Clones and restored snapshots have equal checksums; attacks and seeds change it
+- [x] The same modifiers added in a different order give the same checksum
+- [x] Golden master: five rounds of the rolled duel end in the pinned checksum
+
+Duels (`StatLab.Sim.Tests`: `DuelTests`)
+- [x] A duel runs until one team is defeated, changing the state it's given
+- [x] A duel that can't end stops at the step cap (default 100) as a draw
+- [x] Rejected commands still count towards the cap
+- [x] Same seed, same result; evenly matched combatants finish with a winner within the cap

@@ -2,7 +2,7 @@ namespace StatLab.Core.Hashing;
 
 // FNV-1a 64-bit, fed one field at a time. Written out in Core so the same state gives the same value on
 // every machine and runtime (System.HashCode is seeded randomly per process). Not cryptographic.
-// A class, not a struct, so passing it to AddTo methods can't silently hash into a copy.
+// A class, not a struct, so passing it to AddToChecksum methods can't silently hash into a copy.
 internal sealed class Checksum
 {
     private const ulong OffsetBasis = 0xCBF29CE484222325;
