@@ -51,13 +51,70 @@ A ruleset is a complete set of formulas for one formula mode (e.g. vertical WoW-
 
 WoW-style scaling: numbers grow a lot with level and gear. `VerticalRuleset`, tuned by `VerticalRulesetConfig`.
 
-- **Conversions:** MaxHealth from Stamina, MaxMana from Intellect, AttackPower from Strength, CritChance from Agility, each at a configured rate. Armor comes from bases and gear only.
-- **Limits:** CritChance in [0, `MaxCritChance`]; MaxHealth ≥ 1; every other stat ≥ 0. The floors are structural; only the crit cap is tuning.
+- **Conversions and limits:** data, through `StatRules` (below). Which primaries feed which derived stat, at what rate, and every stat's min and max are all in the ruleset file; the vertical ruleset has no stat-specific code.
 - **Attack roll:** one roll in [0, 1) against stacked ranges: miss, then crit, then hit. If miss + crit exceed 1, crit is squeezed into what's left. One rng draw per attack.
 - **Miss chance:** `BaseMissChance + MissChancePerLevel × levels the defender is above the attacker`. Never below base.
 - **Basic attack:** `AttackPower × BasicAttackCoefficient`; can miss and crit.
 - **Damage:** `attacker[spec.ScalesWith] × spec.Coefficient`, × `CritMultiplier` on a crit, then × (1 − armour reduction). No damage spread until weapons arrive (milestone 4, with abilities).
 - **Armour reduction:** `armor / (armor + ArmorPerAttackerLevel × attackerLevel + ArmorConstant)`. Diminishing returns: never reaches 100%, and the same armour counts for less against higher-level attackers. `ArmorConstant` must be above 0 (validate at load, milestone 3).
+
+## Stat rules (data-driven conversions and limits)
+
+Like Unreal GAS's attribute-based magnitudes: the common, linear stat maths is data; non-linear formulas (armour, the roll table, miss chance) stay in the ruleset's code.
+
+- A ruleset file lists **every stat** once. Each entry has an optional `min` and `max`, and derived stats may list `sources`: primaries with a rate. A derived stat's conversion is the sum of `primary × rate` over its sources.
+- `StatRules` (Core) holds them, indexed by `StatId`. `StatRules.Validate` returns every problem at once, and the constructor throws if there are any; `StatLab.Data` reports the same problems as load errors.
+- Checks: every stat listed exactly once; `min ≤ max`; only derived stats have sources; sources are primaries (no derived-to-derived chains yet: they'd need an ordering and a cycle check); no source listed twice.
+- Adding a `StatId` makes every ruleset file fail to load until the new stat has an entry, so a stat can't be half-configured.
+
+```json
+{
+  "formatVersion": 1,
+  "stats": [
+    {
+      "stat": "Stamina",
+      "min": 0
+    },
+    {
+      "stat": "MaxHealth",
+      "min": 1,
+      "sources": [
+        {
+          "stat": "Stamina",
+          "rate": 10
+        },
+        {
+          "stat": "Strength",
+          "rate": 2
+        }
+      ]
+    },
+    {
+      "stat": "CritChance",
+      "min": 0,
+      "max": 0.75,
+      "sources": [
+        {
+          "stat": "Agility",
+          "rate": 0.01
+        }
+      ]
+    }
+  ],
+  "attacks": {
+    "basicAttackCoefficient": 1,
+    "critMultiplier": 2,
+    "baseMissChance": 0.05,
+    "missChancePerLevel": 0.01
+  },
+  "armor": {
+    "perAttackerLevel": 50,
+    "constant": 100
+  }
+}
+```
+
+(Abridged: a real file lists every stat. Files use standard indented JSON, two spaces per level; layout carries no meaning.)
 
 ## Not in milestone 2
 

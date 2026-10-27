@@ -60,7 +60,7 @@ Within one stat, modifiers are applied in canonical order: sorted by `Type`, the
 2. Convert primaries to derived stats using the active ruleset's conversion rules.
 3. Run each derived stat through the pipeline, so modifiers like "+1% crit" apply.
 
-Conversion rules belong to the ruleset, not the pipeline.
+Conversion rules belong to the ruleset, not the pipeline. They're data: each derived stat lists the primaries it comes from and their rates (`rulesets.md`, Stat rules).
 
 - A derived stat's pipeline base is its own base value plus the conversion: `MaxHealth = base + Stamina × rate`. Mobs can set derived stats directly and have no primaries.
 - `IRuleset.Convert(derivedStat, finalPrimaries)` returns one stat's conversion. All conversions are computed before any derived stat is written.
@@ -69,7 +69,7 @@ Conversion rules belong to the ruleset, not the pipeline.
 
 ## Caps and clamping
 
-- `IRuleset.Clamp(stat, value)` applies the ruleset's limits (e.g. crit cap, MaxHealth ≥ 1). Limit values are tuning numbers and belong in the ruleset's data.
+- `IRuleset.Clamp(stat, value)` applies the ruleset's limits (e.g. crit cap, MaxHealth ≥ 1). Limits, floors included, are data: every stat has an entry in the ruleset's stat rules (`rulesets.md`, Stat rules).
 - Every stat is clamped right after its own pipeline: primaries before conversion, so a debuff past zero can't produce a negative conversion; derived stats last.
 - Clamping applies to final values only, never to intermediate sums inside the pipeline.
 - Current health is a resource, not a stat; keeping it ≥ 0 is combat's job.

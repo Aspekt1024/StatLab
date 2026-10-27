@@ -17,27 +17,15 @@ public sealed class VerticalRuleset : IRuleset
 
     public string Id => "vertical";
 
+    // Conversions and limits come from data (StatRules).
     public double Convert(StatId derivedStat, StatBlock finalPrimaries)
     {
-        return derivedStat switch
-        {
-            StatId.MaxHealth => finalPrimaries[StatId.Stamina] * _config.HealthPerStamina,
-            StatId.MaxMana => finalPrimaries[StatId.Intellect] * _config.ManaPerIntellect,
-            StatId.AttackPower => finalPrimaries[StatId.Strength] * _config.AttackPowerPerStrength,
-            StatId.CritChance => finalPrimaries[StatId.Agility] * _config.CritChancePerAgility,
-            _ => 0,
-        };
+        return _config.Stats.Convert(derivedStat, finalPrimaries);
     }
 
-    // The floors are structural, not tuning: no negative stats, and nothing alive has 0 max health.
     public double Clamp(StatId stat, double value)
     {
-        return stat switch
-        {
-            StatId.MaxHealth => Math.Max(value, 1),
-            StatId.CritChance => Math.Clamp(value, 0, _config.MaxCritChance),
-            _ => Math.Max(value, 0),
-        };
+        return _config.Stats.Clamp(stat, value);
     }
 
     public DamageSpec BasicAttack => new(StatId.AttackPower, _config.BasicAttackCoefficient, CanMiss: true, CanCrit: true);

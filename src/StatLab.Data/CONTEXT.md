@@ -22,7 +22,8 @@ Milestone 3, in build order. Steps marked **Core** add types or formulas to `Sta
    - Core throws for a missing level, slot or stat weight; Data's load validation (step 5) must check shares sum to 1, weights and multipliers are above 0, and power modifiers are above 0.
 2. **Core: class base stats** (`Progression/`), done. `ClassId` (readable key) and `ClassDefinition`: one full row of base stats per level, any stat (primaries and derived bases such as a class base MaxHealth). Read through `BaseStats(level)`, which returns a copy; a missing level throws. Data's validation (step 5) must check every level a character can reach has a row.
 3. **Core: `GameData`**, done. One immutable object per ruleset folder: a ready `IRuleset` (Data builds it from its config), the budget tables, items and classes. Lookups are methods (`Item`, `Class`, `TryGetItem`, `TryGetClass`) whose errors name the id; `Items` and `Classes` are read-only lists sorted by id, ordinal. Item stats are computed once at build (`ItemStats(id)`), so table errors fail at load.
-4. **Data: project and ruleset config.** Create `StatLab.Data` and `StatLab.Data.Tests`, reference Newtonsoft.Json, and load `data/vertical/` config into `VerticalRulesetConfig` with validation. Add a JSON Schema per file type (`*.schema.json`) for autocomplete and checks in Rider.
+3b. **Core: data-driven stat rules**, done. `StatRule`, `StatSource` and `StatRules` (`Rulesets/`): conversions and limits per stat, from data. `VerticalRulesetConfig` holds `StatRules` plus the attack and armour constants. `StatRules.Validate` returns every problem; Data reports them as load errors.
+4. **Data: project and ruleset config.** Create `StatLab.Data` and `StatLab.Data.Tests`, reference Newtonsoft.Json, and load `data/vertical/ruleset.json` (shape in `rulesets.md`, Stat rules) into `VerticalRulesetConfig`. Validation: `formatVersion`, unknown fields, `StatRules.Validate`, and the attack and armour constants (e.g. `ArmorConstant > 0`). Add a JSON Schema per file type (`*.schema.json`) for autocomplete and checks in Rider.
 5. **Data: budget tables, items and classes.** Before building, settle the progression model (open question in `design-decisions.md`): it decides whether class files hold per-level tables or starting stats plus XP curves. Stat, slot, item and class names converted on load; every reference must exist; shares sum to 100%.
 6. **Data: loading a whole ruleset folder into `GameData`,** reporting every error found.
 7. **Core: equipping items on a combatant.** An item's computed modifiers, stamped with a fresh `SourceId`, added to its `StatSheet`.
@@ -37,6 +38,10 @@ Milestone 3, in build order. Steps marked **Core** add types or formulas to `Sta
 - **Item stats are whole numbers,** rounded when the item's stats are generated. They're what players see and compare, so they're final output under rule 6, and the tooltip and combat agree.
 - **Class base stats and level growth are in milestone 3.**
 - **Weapons and damage spread wait for milestone 4,** with damage specs and abilities. Milestone 3 items give stats only.
+- **Ruleset files group by stat** (`"stats": [...]`): each stat's limits and sources in one entry, always a `sources` array, every stat listed.
+- **Every file has `"formatVersion"`.** A file in an older shape fails with "format N, expected M" instead of a list of confusing field errors.
+- **Unknown fields are load errors,** so a typo can't be silently ignored.
+- **Ruleset config lists every stat; content is sparse.** Items, classes and saves only mention the stats they use; unmentioned stats are 0.
 
 ## Writes
 
