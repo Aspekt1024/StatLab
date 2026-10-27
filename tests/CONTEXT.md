@@ -8,6 +8,7 @@
 |------------------------------| --- |
 | `StatLab.Core.Tests` (xUnit) | Correctness of formulas, pipeline and data structures |
 | `StatLab.Sim.Tests` (xUnit)  | Duel driver and policies, through Core's public API only |
+| `StatLab.Data.Tests` (xUnit) | Loaders and validation, from JSON built in the test (never from `data/`) |
 | `StatLab.Balance.Tests`      | Balance targets per ruleset (milestone 6, not yet created) |
 
 ## Reads
@@ -18,6 +19,7 @@
 ## Rules
 
 - Build fixtures in code (small, explicit `StatBlock`s and modifiers). Tests never read files from `data/`.
+- Exception: loader tests (`StatLab.Data.Tests`) keep JSON fixtures as files in their project's `Fixtures/` folder, copied to the test output and read with `Fixture.Read(name)`. Standard indented JSON, no inline JSON in test code. A fixture is a valid file; each test breaks one thing in code.
 - Expected values are hand-calculated and written in the test, with the arithmetic in a comment.
 - Compare floats with a tolerance, never `==`: `Assert.Equal(expected, actual, tolerance: 1e-9)`. Exception: determinism and rollback tests compare exactly, because their promise is identical bits.
 - Use `[Fact]` for a single case, `[Theory]` with `[InlineData]` for the same behaviour over several inputs.

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>StatLab.Data</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Pin to the 13.0.x line Unity ships (com.unity.nuget.newtonsoft-json) so the game and sim parse alike -->
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\StatLab.Core\StatLab.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="StatLab.Data.Tests" />
+    </ItemGroup>
+
+</Project>

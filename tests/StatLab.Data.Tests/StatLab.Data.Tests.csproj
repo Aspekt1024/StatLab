@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
+      </PackageReference>
+      <PackageReference Include="xunit.v3" Version="4.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!-- JSON fixtures are copied next to the test DLL; tests read them from there, never from data/ -->
+      <None Update="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\StatLab.Core\StatLab.Core.csproj" />
+      <ProjectReference Include="..\..\src\StatLab.Data\StatLab.Data.csproj" />
+    </ItemGroup>
+
+</Project>

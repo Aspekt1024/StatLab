@@ -4,7 +4,7 @@ Current milestone: see `docs/milestones.md`.
 
 | Task | Read | Status |
 | --- | --- | --- |
-| Milestone 3 build order and decisions | `src/StatLab.Data/CONTEXT.md` | Active (milestone 3); project created in step 4 |
+| Milestone 3 build order and decisions | `src/StatLab.Data/CONTEXT.md` | Active (milestone 3) |
 | Item budget, item generation | `docs/reference/item-budget.md`, `src/StatLab.Data/CONTEXT.md` | Active (milestone 3) |
 | Loading and validating data files | `src/StatLab.Data/CONTEXT.md` | Active (milestone 3) |
 | Combat, rulesets, turns, checksum | `src/StatLab.Core/CONTEXT.md`, `docs/reference/rulesets.md` | Done (milestone 2); read when changing combat code |

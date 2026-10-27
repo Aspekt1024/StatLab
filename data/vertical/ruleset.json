@@ -1,0 +1,77 @@
+{
+  "$schema": "../schemas/vertical-ruleset.schema.json",
+  "formatVersion": 1,
+  "stats": [
+    {
+      "stat": "Strength",
+      "min": 0
+    },
+    {
+      "stat": "Agility",
+      "min": 0
+    },
+    {
+      "stat": "Intellect",
+      "min": 0
+    },
+    {
+      "stat": "Stamina",
+      "min": 0
+    },
+    {
+      "stat": "MaxHealth",
+      "min": 1,
+      "sources": [
+        {
+          "stat": "Stamina",
+          "rate": 10
+        }
+      ]
+    },
+    {
+      "stat": "MaxMana",
+      "min": 0,
+      "sources": [
+        {
+          "stat": "Intellect",
+          "rate": 15
+        }
+      ]
+    },
+    {
+      "stat": "AttackPower",
+      "min": 0,
+      "sources": [
+        {
+          "stat": "Strength",
+          "rate": 2
+        }
+      ]
+    },
+    {
+      "stat": "CritChance",
+      "min": 0,
+      "max": 0.75,
+      "sources": [
+        {
+          "stat": "Agility",
+          "rate": 0.01
+        }
+      ]
+    },
+    {
+      "stat": "Armor",
+      "min": 0
+    }
+  ],
+  "attacks": {
+    "basicAttackCoefficient": 1,
+    "critMultiplier": 2,
+    "baseMissChance": 0.05,
+    "missChancePerLevel": 0.01
+  },
+  "armor": {
+    "perAttackerLevel": 50,
+    "constant": 100
+  }
+}

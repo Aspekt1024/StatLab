@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vertical ruleset",
+  "description": "Stat rules and combat constants for the vertical ruleset. Spec: docs/reference/rulesets.md. The loader (StatLab.Data) is the final authority; this schema gives editor autocomplete and early checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "stats", "attacks", "armor"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "formatVersion": { "const": 1 },
+    "stats": {
+      "description": "Every stat, exactly once.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stat"],
+        "properties": {
+          "stat": { "$ref": "#/definitions/statName" },
+          "min": { "type": "number" },
+          "max": { "type": "number" },
+          "sources": {
+            "description": "Derived stats only: primaries this stat converts from. Value = sum of primary × rate.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["stat", "rate"],
+              "properties": {
+                "stat": { "$ref": "#/definitions/primaryStatName" },
+                "rate": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "attacks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basicAttackCoefficient", "critMultiplier", "baseMissChance", "missChancePerLevel"],
+      "properties": {
+        "basicAttackCoefficient": { "type": "number", "minimum": 0 },
+        "critMultiplier": { "type": "number", "minimum": 1 },
+        "baseMissChance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "missChancePerLevel": { "type": "number", "minimum": 0 }
+      }
+    },
+    "armor": {
+      "description": "reduction = armor / (armor + perAttackerLevel × attackerLevel + constant)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["perAttackerLevel", "constant"],
+      "properties": {
+        "perAttackerLevel": { "type": "number", "minimum": 0 },
+        "constant": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  },
+  "definitions": {
+    "primaryStatName": {
+      "enum": ["Strength", "Agility", "Intellect", "Stamina"]
+    },
+    "statName": {
+      "enum": ["Strength", "Agility", "Intellect", "Stamina", "MaxHealth", "MaxMana", "AttackPower", "CritChance", "Armor"]
+    }
+  }
+}
